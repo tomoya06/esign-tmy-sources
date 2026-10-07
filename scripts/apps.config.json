@@ -42,27 +42,9 @@
       "updateSource": null,
       "telegram": {
         "channel": "https://t.me/Mark02workshop_official",
-        "filenamePattern": "(?i)maxtube.*\\.ipa$",
-        "versionPattern": "",
-        "limit": 100
-      },
-      "enabled": false
-    },
-    {
-      "id": "maxmusic",
-      "name": "MaxMusic",
-      "iconURL": "",
-      "tintColor": "",
-      "developerName": "Mark02",
-      "localizedDescription": "",
-      "versionDescription": "",
-      "bundleIdentifier": "",
-      "updateSource": null,
-      "telegram": {
-        "channel": "https://t.me/Mark02workshop_official",
-        "filenamePattern": "(?i)maxmusic.*\\.ipa$",
-        "versionPattern": "",
-        "limit": 100
+        "filenamePattern": "(?i)^maxtube.*\\.ipa$",
+        "versionPattern": "(\\d+(?:[._]\\d+)+(?:[a-z]\\d+)?)",
+        "limit": 300
       },
       "enabled": false
     },
@@ -78,7 +60,25 @@
       "updateSource": null,
       "telegram": {
         "channel": "https://t.me/ryukgram",
-        "filenamePattern": "",
+        "filenamePattern": "(?i)^ryukgram_\\d.*\\.ipa$",
+        "versionPattern": "",
+        "limit": 100
+      },
+      "enabled": false
+    },
+    {
+      "id": "ryukgram-noplugins",
+      "name": "RyukGram No-Plugins",
+      "iconURL": "",
+      "tintColor": "",
+      "developerName": "",
+      "localizedDescription": "",
+      "versionDescription": "",
+      "bundleIdentifier": "",
+      "updateSource": null,
+      "telegram": {
+        "channel": "https://t.me/ryukgram",
+        "filenamePattern": "(?i)^ryukgram-no-plugins.*\\.ipa$",
         "versionPattern": "",
         "limit": 100
       },

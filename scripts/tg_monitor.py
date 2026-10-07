@@ -12,6 +12,20 @@ import os
 import re
 from urllib.parse import urlparse
 
+try:
+    # 仅本地调试需要代理（gen_session 同一套环境变量）；Actions 内返回 None，直连 Telegram
+    from gen_session import proxy_from_env
+except ImportError:  # pragma: no cover
+    def proxy_from_env():
+        return None
+
+
+def _client():
+    from telethon import TelegramClient
+    from telethon.sessions import StringSession
+    api_id, api_hash, session = _credentials()
+    return TelegramClient(StringSession(session), api_id, api_hash, proxy=proxy_from_env())
+
 
 def _credentials():
     api_id = int(os.environ.get("TG_API_ID") or 0)
@@ -39,13 +53,10 @@ def find_latest_ipa(channel, filename_pattern=r"(?i)\.ipa$", limit=100):
 
     返回 dict: file_name / size / date / caption / message；未找到返回 None。
     """
-    from telethon import TelegramClient
-    from telethon.sessions import StringSession
     from telethon.tl.types import DocumentAttributeFilename
 
-    api_id, api_hash, session = _credentials()
     pattern = re.compile(filename_pattern)
-    with TelegramClient(StringSession(session), api_id, api_hash) as client:
+    with _client() as client:
         for msg in client.iter_messages(normalize_channel(channel), limit=limit):
             doc = msg.document
             if doc is None:
@@ -69,10 +80,6 @@ def find_latest_ipa(channel, filename_pattern=r"(?i)\.ipa$", limit=100):
 
 def download_message_file(info, dest_dir):
     """下载 find_latest_ipa 返回的文件到 dest_dir，返回本地路径。"""
-    from telethon import TelegramClient
-    from telethon.sessions import StringSession
-
-    api_id, api_hash, session = _credentials()
     target = os.path.join(dest_dir, info["file_name"])
-    with TelegramClient(StringSession(session), api_id, api_hash) as client:
+    with _client() as client:
         return client.download_media(info["message"], file=target)
