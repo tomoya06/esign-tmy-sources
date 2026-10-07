@@ -37,7 +37,9 @@ git push -u origin main
 2. 本地生成 StringSession（账号级凭据，**严禁泄露**）：
 
 ```bash
-pip install telethon
+pip install 'telethon[socks]'
+# 本机无法直连 Telegram 时先设代理（脚本自动读取 TG_PROXY > all_proxy > https_proxy）：
+export all_proxy=socks5://127.0.0.1:7897
 python scripts/gen_session.py
 ```
 
