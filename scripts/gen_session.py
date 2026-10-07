@@ -44,8 +44,11 @@ def proxy_from_env():
 
 
 async def main():
-    api_id = int(input("api_id: ").strip())
-    api_hash = input("api_hash: ").strip()
+    # 已设置环境变量则直接使用（与 GitHub Secrets 同名），否则交互输入
+    api_id = os.environ.get("TG_API_ID") or input("api_id: ")
+    api_hash = os.environ.get("TG_API_HASH") or input("api_hash: ")
+    api_id = int(str(api_id).strip())
+    api_hash = str(api_hash).strip()
     proxy = proxy_from_env()
     if proxy:
         print(f"使用代理: {proxy[1]}:{proxy[2]}")
