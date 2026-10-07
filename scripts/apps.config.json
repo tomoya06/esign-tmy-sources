@@ -1,0 +1,34 @@
+{
+  "source": {
+    "name": "我的自建源",
+    "identifier": "com.qnz.selfhost.source",
+    "sourceURL": "https://raw.githubusercontent.com/tomoya06/esign-tmy-sources/main/app.json",
+    "iconURL": "",
+    "website": "",
+    "tintColor": "0F80FF"
+  },
+  "r2": {
+    "publicBaseURL": "https://pub-XXXXXXXX.r2.dev",
+    "keyPrefix": "ipa",
+    "bucket": "qnz-ipa"
+  },
+  "apps": [
+    {
+      "id": "photosbackup",
+      "name": "PhotosBackup",
+      "iconURL": "",
+      "tintColor": "",
+      "developerName": "",
+      "localizedDescription": "",
+      "versionDescription": "",
+      "bundleIdentifier": "",
+      "updateSource": {
+        "type": "github-release",
+        "url": "https://github.com/g8row/PhotosBackup/releases",
+        "assetPattern": "(?i)\\.ipa$",
+        "rehost": false
+      },
+      "telegram": null
+    }
+  ]
+}
