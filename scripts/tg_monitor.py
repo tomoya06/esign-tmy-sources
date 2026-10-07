@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Telegram 公开频道 .ipa 抓取模块（Telethon + 用户 StringSession）。
 
+运行环境: GitHub Actions 或可直连 Telegram 的网络，不使用任何代理；
+本地登录生成 session 请用 gen_session.py（仅它需要代理）。
 环境变量:
     TG_API_ID / TG_API_HASH / TG_SESSION
 注意: TG_SESSION 是账号级凭据，严禁泄露。

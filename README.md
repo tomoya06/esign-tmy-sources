@@ -38,8 +38,9 @@ git push -u origin main
 
 ```bash
 pip install 'telethon[socks]'
-# 本机无法直连 Telegram 时先设代理（脚本自动读取 TG_PROXY > all_proxy > https_proxy）：
-export all_proxy=socks5://127.0.0.1:7897
+# 仅本地运行需要：无法直连 Telegram 时先设代理（脚本自动读取 TG_PROXY > all_proxy > https_proxy）
+# GitHub Actions 内直连 Telegram，无需代理
+export all_proxy=socks5://127.0.0.1:本地代理端口
 python scripts/gen_session.py
 ```
 

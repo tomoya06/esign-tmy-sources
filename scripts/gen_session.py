@@ -6,9 +6,10 @@
 按提示输入 api_id / api_hash，完成手机号 + 验证码登录后打印 StringSession。
 
 代理: Telethon 走 MTProto 原始连接，不读 https_proxy 环境变量。
-本机无法直连 Telegram 时，先设置代理环境变量（按优先级 TG_PROXY > all_proxy > https_proxy），
-本脚本会自动解析并传给 TelegramClient，例如:
-    export all_proxy=socks5://127.0.0.1:7897
+仅本地运行需要：无法直连 Telegram 时设置代理环境变量（按优先级 TG_PROXY > all_proxy > https_proxy），
+本脚本自动解析并传给 TelegramClient，例如:
+    export all_proxy=socks5://127.0.0.1:7890
+GitHub Actions 内直连 Telegram，无需也不使用本地代理。
 代理支持需要 pip install 'telethon[socks]'。
 
 警告: StringSession 等同账号凭据，严禁提交仓库或泄露。
