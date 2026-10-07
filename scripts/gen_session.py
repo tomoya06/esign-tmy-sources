@@ -32,11 +32,16 @@ def proxy_from_env():
         print(f"忽略无法解析的代理配置: {raw}")
         return None
     scheme = (m.group(1) or "socks5").lower()
+    # 新版 telethon 使用 python-socks，老版使用 pysocks(socks)，两者都兼容
     try:
-        import socks
+        from python_socks import ProxyType
+        ptype = {"socks5": ProxyType.SOCKS5, "socks4": ProxyType.SOCKS4, "http": ProxyType.HTTP}.get(scheme)
     except ImportError:
-        raise SystemExit("使用代理需要安装 socks 支持: pip install 'telethon[socks]'")
-    ptype = {"socks5": socks.SOCKS5, "socks4": socks.SOCKS4, "http": socks.HTTP}.get(scheme)
+        try:
+            import socks
+        except ImportError:
+            raise SystemExit("使用代理需要安装: pip install 'python-socks[asyncio]'")
+        ptype = {"socks5": socks.SOCKS5, "socks4": socks.SOCKS4, "http": socks.HTTP}.get(scheme)
     if ptype is None:
         print(f"不支持的代理协议: {scheme}")
         return None

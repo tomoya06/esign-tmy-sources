@@ -37,11 +37,12 @@ git push -u origin main
 2. 本地生成 StringSession（账号级凭据，**严禁泄露**）：
 
 ```bash
-pip install 'telethon[socks]'
+# 注意 mac 自带 python3/pip3 版本不一致，用 venv 隔离（.venv 已在 .gitignore 中）
+python3.10 -m venv .venv && .venv/bin/pip install telethon 'python-socks[asyncio]'
 # 仅本地运行需要：无法直连 Telegram 时先设代理（脚本自动读取 TG_PROXY > all_proxy > https_proxy）
 # GitHub Actions 内直连 Telegram，无需代理
 export all_proxy=socks5://127.0.0.1:本地代理端口
-python scripts/gen_session.py
+.venv/bin/python scripts/gen_session.py
 ```
 
 3. 把 `api_id`、`api_hash`、StringSession 分别存入仓库 Secrets
