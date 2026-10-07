@@ -29,6 +29,60 @@
         "rehost": false
       },
       "telegram": null
+    },
+    {
+      "id": "maxtube",
+      "name": "MaxTube",
+      "iconURL": "",
+      "tintColor": "",
+      "developerName": "Mark02",
+      "localizedDescription": "",
+      "versionDescription": "",
+      "bundleIdentifier": "",
+      "updateSource": null,
+      "telegram": {
+        "channel": "https://t.me/Mark02workshop_official",
+        "filenamePattern": "(?i)maxtube.*\\.ipa$",
+        "versionPattern": "",
+        "limit": 100
+      },
+      "enabled": false
+    },
+    {
+      "id": "maxmusic",
+      "name": "MaxMusic",
+      "iconURL": "",
+      "tintColor": "",
+      "developerName": "Mark02",
+      "localizedDescription": "",
+      "versionDescription": "",
+      "bundleIdentifier": "",
+      "updateSource": null,
+      "telegram": {
+        "channel": "https://t.me/Mark02workshop_official",
+        "filenamePattern": "(?i)maxmusic.*\\.ipa$",
+        "versionPattern": "",
+        "limit": 100
+      },
+      "enabled": false
+    },
+    {
+      "id": "ryukgram",
+      "name": "RyukGram",
+      "iconURL": "",
+      "tintColor": "",
+      "developerName": "",
+      "localizedDescription": "",
+      "versionDescription": "",
+      "bundleIdentifier": "",
+      "updateSource": null,
+      "telegram": {
+        "channel": "https://t.me/ryukgram",
+        "filenamePattern": "",
+        "versionPattern": "",
+        "limit": 100
+      },
+      "enabled": false
     }
   ]
 }

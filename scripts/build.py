@@ -143,19 +143,24 @@ def pick_github_release(src):
     }
 
 
+def resolve_bundle_id_from_ipa_file(ipa_path):
+    """从已下载的 IPA 内 Payload/*.app/Info.plist 解析 CFBundleIdentifier。"""
+    with zipfile.ZipFile(ipa_path) as z:
+        for name in z.namelist():
+            if name.startswith("Payload/") and name.endswith(".app/Info.plist") and name.count("/") == 2:
+                with z.open(name) as f:
+                    bid = str(plistlib.load(f).get("CFBundleIdentifier") or "").strip()
+                if bid and "$(" not in bid:
+                    return bid
+    raise ValueError("无法从 IPA 解析 bundleIdentifier，请在配置中手填")
+
+
 def resolve_bundle_id_from_ipa(url):
-    """下载 IPA 并从 Payload/*.app/Info.plist 解析 CFBundleIdentifier。"""
+    """下载 IPA 并解析 CFBundleIdentifier（bundleIdentifier 未配置时用）。"""
     with tempfile.TemporaryDirectory() as tmp:
         ipa_path = Path(tmp) / "probe.ipa"
         download_to_file(url, ipa_path)
-        with zipfile.ZipFile(ipa_path) as z:
-            for name in z.namelist():
-                if name.startswith("Payload/") and name.endswith(".app/Info.plist") and name.count("/") == 2:
-                    with z.open(name) as f:
-                        bid = str(plistlib.load(f).get("CFBundleIdentifier") or "").strip()
-                    if bid and "$(" not in bid:
-                        return bid
-    raise ValueError("无法从 IPA 解析 bundleIdentifier，请在配置中手填")
+        return resolve_bundle_id_from_ipa_file(ipa_path)
 
 
 def _parse_alt_date(s):
@@ -322,8 +327,8 @@ def process_gh_release(app_cfg, existing):
 def process_tg_app(app_cfg, existing):
     tg_cfg = app_cfg["telegram"]
     bid = app_cfg.get("bundleIdentifier")
-    if not bid:
-        raise ValueError("Telegram 模式必须在配置中填写 bundleIdentifier")
+    if not bid and existing and existing.get("bundleIdentifier"):
+        bid = existing["bundleIdentifier"]  # 首次解析后沿用旧条目的 bid；首次无旧条目则下载后再解析
     info = tgm.find_latest_ipa(
         channel=tg_cfg.get("channel", ""),
         filename_pattern=tg_cfg.get("filenamePattern") or r"(?i)\.ipa$",
@@ -344,14 +349,19 @@ def process_tg_app(app_cfg, existing):
     if r2 is None:
         raise ValueError(f"Telegram 模式必须配置 R2 转存: {err}")
     client, bucket = r2
-    key = f"{(CFG.get('r2', {}) or {}).get('keyPrefix', 'ipa').strip('/')}/{bid}/{version}.ipa"
 
     tmpdir = tempfile.mkdtemp()
     try:
-        log(app_cfg["id"], f"下载 {info['file_name']} -> R2:{key}")
+        log(app_cfg["id"], f"下载 {info['file_name']} 到临时目录")
         tgm.download_message_file(info, tmpdir)
         ipa_path = Path(tmpdir) / info["file_name"]
         size = ipa_path.stat().st_size
+        if not bid:  # TG 消息不含 bundleId，未配置时从 IPA 自动解析
+            log(app_cfg["id"], "未配置 bundleIdentifier，从 IPA 自动解析")
+            bid = resolve_bundle_id_from_ipa_file(ipa_path)
+            log(app_cfg["id"], f"解析到 bundleIdentifier: {bid}")
+        key = f"{(CFG.get('r2', {}) or {}).get('keyPrefix', 'ipa').strip('/')}/{bid}/{version}.ipa"
+        log(app_cfg["id"], f"上传 -> R2:{key}")
         client.upload_file(str(ipa_path), bucket, key)
     finally:
         shutil.rmtree(tmpdir, ignore_errors=True)
@@ -383,6 +393,9 @@ def main():
 
     entries, failed = [], []
     for app_cfg in CFG.get("apps", []):
+        if app_cfg.get("enabled") is False:
+            log(app_cfg.get("id") or app_cfg.get("name") or "unknown", "enabled=false，跳过")
+            continue
         app_id = app_cfg.get("id") or app_cfg.get("name") or "unknown"
         # 预查旧条目：TG 模式用配置的 bid 精确匹配；JSON 模式 bid 在源里，用 name 兜底
         existing = existing_by_bid.get(app_cfg.get("bundleIdentifier") or "")

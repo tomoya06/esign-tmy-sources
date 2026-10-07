@@ -129,7 +129,7 @@ https://cdn.jsdelivr.net/gh/YOUR_NAME/YOUR_REPO@main/app.json
         "versionPattern": "(\\d+(?:\\.\\d+)+)",  // 从文件名提取版本号
         "limit": 100                    // 回溯检查的消息条数
       },
-      "bundleIdentifier": "com.xxx.xxx" // TG 消息里没有，必须手填
+      "bundleIdentifier": "com.xxx.xxx" // TG 消息里没有：可手填，或留空首次运行时自动解析
     }
   ]
 }
@@ -137,10 +137,16 @@ https://cdn.jsdelivr.net/gh/YOUR_NAME/YOUR_REPO@main/app.json
 
 `iconURL`、`tintColor`、`developerName`、`localizedDescription`、`versionDescription` 为可选，留空时优先取更新源里的值。
 
+补充规则：
+
+- 同一个 TG 频道发多个 App 时，每个 App 必须配不同的 `filenamePattern` 区分（如 `(?i)maxtube.*\.ipa$`），否则会互相串台。
+- 任一 App 加 `"enabled": false` 可临时停用（保留配置、Actions 跳过不报错），需要时改回 `true`。
+
 ## 工作原理与格式要点
 
 - 每天 UTC 20:00（北京时间 4:00）Actions 运行 `build.py`；也可在 Actions 页面手动触发。
 - GitHub Release 来源默认直接引用 GitHub 直链（Release 资产永久有效，不占用 R2）；`rehost: true` 可改为转存 R2。`bundleIdentifier` 留空时会下载一次 IPA 从 Info.plist 自动解析。
+- TG 来源每个新版本下载后自动解析 `bundleIdentifier`（若未配置）并转存 R2（TG 文件链接会过期，必须转存）。
 - 其余来源的每个新版本 IPA 下载后上传到 R2：`{keyPrefix}/{bundleIdentifier}/{version}.ipa`，按版本隔离、不覆盖历史版本。
 - `app.json` 中 `downloadURL` 写作 `https://pub-xxx.r2.dev/ipa/xxx/1.2.3.ipa` 同样支持的 `{version}` 占位符形式（客户端会自动替换为 `version` 字段的值）。
 - 版本号与现有 `app.json` 相同的条目直接跳过下载，脚本幂等。
