@@ -1,5 +1,5 @@
 {
-  "name": "我的自建源",
+  "name": "tomoya06 创意软件工坊",
   "identifier": "com.qnz.selfhost.source",
   "sourceURL": "https://raw.githubusercontent.com/tomoya06/esign-tmy-sources/main/app.json",
   "apps": [
@@ -102,5 +102,6 @@
       "type": 1
     }
   ],
-  "tintColor": "0F80FF"
+  "iconURL": "https://raw.githubusercontent.com/tomoya06/esign-tmy-sources/main/assets/icons/source.png",
+  "tintColor": "A855F7"
 }
