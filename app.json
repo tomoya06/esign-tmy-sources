@@ -100,6 +100,20 @@
       "tintColor": "5DBE8A",
       "size": 24083344,
       "type": 1
+    },
+    {
+      "name": "Spotify",
+      "bundleIdentifier": "com.spotify.client",
+      "developerName": "SideloadLabs (EeveeSpotify)",
+      "version": "9.1.88",
+      "versionDate": "2026-10-05",
+      "versionDescription": "Updated to Spotify v9.1.88, Full release notes on github",
+      "downloadURL": "https://gh-proxy.com/https://github.com/tomoya06/esign-tmy-sources/releases/download/ipa-store/spotify_com.spotify.client_9.1.88.ipa",
+      "localizedDescription": "Spotify 增强版（EeveeSpotifyReincarnated）：解锁 Premium（免广告、无限切歌、离线下载），基于官方 Spotify 客户端注入 EeveeSpotify 7.0.0",
+      "iconURL": "https://raw.githubusercontent.com/tomoya06/esign-tmy-sources/main/assets/icons/spotify.png",
+      "tintColor": "1DB954",
+      "size": 139507438,
+      "type": 1
     }
   ],
   "iconURL": "https://raw.githubusercontent.com/tomoya06/esign-tmy-sources/main/assets/icons/source.png",

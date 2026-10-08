@@ -141,6 +141,24 @@
       },
       "telegram": null,
       "enabled": true
+    },
+    {
+      "id": "spotify",
+      "name": "Spotify",
+      "iconURL": "https://raw.githubusercontent.com/tomoya06/esign-tmy-sources/main/assets/icons/spotify.png",
+      "tintColor": "1DB954",
+      "developerName": "SideloadLabs (EeveeSpotify)",
+      "localizedDescription": "Spotify 增强版（EeveeSpotifyReincarnated）：解锁 Premium（免广告、无限切歌、离线下载），基于官方 Spotify 客户端注入 EeveeSpotify 7.0.0",
+      "versionDescription": "",
+      "bundleIdentifier": "com.spotify.client",
+      "updateSource": {
+        "type": "altstore",
+        "url": "https://raw.githubusercontent.com/SideloadLabs/SideloasLabs-AltSource/refs/heads/main/apps.json",
+        "bundleIdentifier": "com.spotify.client",
+        "rehost": true
+      },
+      "telegram": null,
+      "enabled": true
     }
   ],
   "downloadMirror": "https://gh-proxy.com/"
