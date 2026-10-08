@@ -432,15 +432,16 @@ def process_tg_app(app_cfg, existing):
     bid = app_cfg.get("bundleIdentifier")
     if not bid and existing and existing.get("bundleIdentifier"):
         bid = existing["bundleIdentifier"]  # 首次解析后沿用旧条目的 bid；首次无旧条目则下载后再解析
+    vp = tg_cfg.get("versionPattern")
     info = tgm.find_latest_ipa(
         channel=tg_cfg.get("channel", ""),
         filename_pattern=tg_cfg.get("filenamePattern") or r"(?i)\.ipa$",
+        version_pattern=vp,  # 提供时在全部匹配中取版本号最大的（同轮多 iOS 基线发布）
         limit=int(tg_cfg.get("limit") or 100),
     )
     if info is None:
         raise ValueError("频道中未找到匹配的 .ipa 文件")
 
-    vp = tg_cfg.get("versionPattern")
     m = re.search(vp, info["file_name"]) if vp else re.search(r"(\d+(?:\.\d+)+)", info["file_name"])
     version = m.group(1) if m else info["date"].strftime("%Y%m%d")
     version = sanitize_version(version)

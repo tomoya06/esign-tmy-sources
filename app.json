@@ -35,14 +35,14 @@
       "name": "MaxTube",
       "bundleIdentifier": "com.google.ios.youtube",
       "developerName": "Mark02",
-      "version": "20.21.6_6.0b2",
+      "version": "21.40.5_6.0b2",
       "versionDate": "2026-10-04T17:38:12+00:00",
-      "versionDescription": "New MaxTube releases\n\nMaxTube 2.0\n\nChanged\n\n• MaxTube now offers extra features, grouped in a new section in YouTube settings called \"MaxTube Extras\". These extras are tweaks created or forked by me, which currently include my fork of YTLowContrastMode and my fixed copy of the YTLocalQueue tweak; You can use YTLocalQueue by opening a video and clicking the new buttons in the overlay to add and/or skip videos in the queue, and also to view the videos in your queue\n\n• Updated YTPlus to 6.0b2, whic",
-      "downloadURL": "https://gh-proxy.com/https://github.com/tomoya06/esign-tmy-sources/releases/download/ipa-store/maxtube_com.google.ios.youtube_20.21.6_6.0b2.ipa",
+      "versionDescription": "",
+      "downloadURL": "https://gh-proxy.com/https://github.com/tomoya06/esign-tmy-sources/releases/download/ipa-store/maxtube_com.google.ios.youtube_21.40.5_6.0b2.ipa",
       "localizedDescription": "",
       "iconURL": "https://raw.githubusercontent.com/tomoya06/esign-tmy-sources/main/assets/icons/maxtube.png",
       "tintColor": "",
-      "size": 130156635,
+      "size": 148249360,
       "type": 1
     },
     {

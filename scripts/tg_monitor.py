@@ -49,8 +49,13 @@ def normalize_channel(channel):
     return f"@{channel}"
 
 
-def find_latest_ipa(channel, filename_pattern=r"(?i)\.ipa$", limit=100):
-    """扫描公开频道最近 limit 条消息（新到旧），返回最新匹配的文件信息（不下载）。
+def find_latest_ipa(channel, filename_pattern=r"(?i)\.ipa$", version_pattern=None, limit=100):
+    """扫描公开频道最近 limit 条消息（新到旧），返回最优匹配的文件信息（不下载）。
+
+    选取策略：提供 version_pattern 时在全部匹配中取「版本号最大」的——
+    作者同轮发布常带多个 iOS 兼容基线，时间最新 ≠ 版本最大；并列取最新。
+    未提供 version_pattern 时保持旧行为：取时间最新的一条。
+    文件名提取不到版本的匹配直接跳过（不作为候选）。
 
     返回 dict: file_name / size / date / caption / message；未找到返回 None。
     注意: 返回的 message 对象仅可传给 download_message_file（内部重新建连下载），不可复用。
@@ -58,8 +63,15 @@ def find_latest_ipa(channel, filename_pattern=r"(?i)\.ipa$", limit=100):
     from telethon.tl.types import DocumentAttributeFilename
 
     pattern = re.compile(filename_pattern)
+    vpat = re.compile(version_pattern) if version_pattern else None
+
+    def vkey(name):
+        m = vpat.search(name)
+        # 版本号数值化比较：拆出所有数字段逐段比（20.21.6_6.0b2 -> (20,21,6,6,0,2)）
+        return tuple(int(x) for x in re.findall(r"\d+", m.group(1))) if m else None
 
     async def _run():
+        best, best_key = None, None
         async with _client() as client:
             async for msg in client.iter_messages(normalize_channel(channel), limit=limit):
                 doc = msg.document
@@ -72,14 +84,22 @@ def find_latest_ipa(channel, filename_pattern=r"(?i)\.ipa$", limit=100):
                         break
                 if not name or not pattern.search(name):
                     continue
-                return {
+                info = {
                     "file_name": os.path.basename(name),
                     "size": doc.size,
                     "date": msg.date,  # aware datetime (UTC)
                     "caption": (msg.message or "").strip(),
                     "message": msg,
                 }
-        return None
+                if vpat is None:
+                    return info  # 无版本策略：新到旧遍历，首个即最新
+                key = vkey(info["file_name"])
+                if key is None:
+                    continue  # 匹配文件名但提取不到版本，跳过
+                cmp_key = (key, msg.date)  # 版本最大优先，并列取最新
+                if best is None or cmp_key > best_key:
+                    best, best_key = info, cmp_key
+        return best
 
     return asyncio.run(_run())
 
