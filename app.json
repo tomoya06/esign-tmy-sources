@@ -16,6 +16,20 @@
       "tintColor": "",
       "size": 2716224,
       "type": 1
+    },
+    {
+      "name": "RedditDeluxe",
+      "bundleIdentifier": "com.reddit.Reddit",
+      "developerName": "surrel14",
+      "version": "2026.40.0",
+      "versionDate": "2026-10-07T18:46:26Z",
+      "versionDescription": "",
+      "downloadURL": "https://github.com/surrel14/RedditFilter/releases/download/v2026.40.0/RedditDeluxe_v2026.40.0.ipa",
+      "localizedDescription": "Reddit 客户端增强 fork（RedditFilter）",
+      "iconURL": "",
+      "tintColor": "FF4500",
+      "size": 139614818,
+      "type": 1
     }
   ],
   "tintColor": "0F80FF"

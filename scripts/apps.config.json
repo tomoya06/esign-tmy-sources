@@ -31,6 +31,23 @@
       "telegram": null
     },
     {
+      "id": "redditdeluxe",
+      "name": "RedditDeluxe",
+      "iconURL": "",
+      "tintColor": "FF4500",
+      "developerName": "surrel14",
+      "localizedDescription": "Reddit 客户端增强 fork（RedditFilter）",
+      "versionDescription": "",
+      "bundleIdentifier": "",
+      "updateSource": {
+        "type": "github-release",
+        "url": "https://github.com/surrel14/RedditFilter/releases",
+        "assetPattern": "(?i)^redditdeluxe.*\\.ipa$",
+        "rehost": false
+      },
+      "telegram": null
+    },
+    {
       "id": "maxtube",
       "name": "MaxTube",
       "iconURL": "",
