@@ -311,14 +311,18 @@ def gh_upload_asset(repo, token, release_id, name, path):
 
 
 def storage_upload_file(app_id, bid, version, ipa_path):
-    """上传本地 IPA 到配置的存储（github-release / r2），返回含 {version} 占位符的 downloadURL。"""
+    """上传本地 IPA 到配置的存储（github-release / r2），返回 downloadURL。
+
+    asset/key 名含 app_id 前缀：同一 bundleId 的多个变体（如 RyukGram 完整版与
+    No-Plugins 版）不会互相覆盖。
+    """
     st = CFG.get("storage", {}) or {}
     if st.get("type") == "github-release":
         repo = gh_storage_repo(st)
         token = gh_token()
         tag = st.get("tag") or "ipa-store"
         release_id = ensure_gh_release(repo, token, tag)
-        name = f"{bid}_{version}.ipa"
+        name = f"{app_id}_{bid}_{version}.ipa"
         size = gh_upload_asset(repo, token, release_id, name, ipa_path)
         log(app_id, f"已上传 GitHub Release:{tag}/{name} ({size} bytes)")
         return f"https://github.com/{repo}/releases/download/{tag}/{name}"
@@ -326,7 +330,7 @@ def storage_upload_file(app_id, bid, version, ipa_path):
     if r2 is None:
         raise ValueError(f"存储不可用: {err}")
     client, bucket = r2
-    key = f"{(CFG.get('r2', {}) or {}).get('keyPrefix', 'ipa').strip('/')}/{bid}/{version}.ipa"
+    key = f"{(CFG.get('r2', {}) or {}).get('keyPrefix', 'ipa').strip('/')}/{app_id}/{bid}/{version}.ipa"
     log(app_id, f"上传 -> R2:{key}")
     client.upload_file(str(ipa_path), bucket, key)
     return r2_download_url(CFG, bucket, bid, version)
