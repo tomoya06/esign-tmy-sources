@@ -41,7 +41,7 @@
       "downloadURL": "https://gh-proxy.com/https://github.com/tomoya06/esign-tmy-sources/releases/download/ipa-store/maxtube_com.google.ios.youtube_21.40.5_6.0b2.ipa",
       "localizedDescription": "",
       "iconURL": "https://raw.githubusercontent.com/tomoya06/esign-tmy-sources/main/assets/icons/maxtube.png",
-      "tintColor": "",
+      "tintColor": "FF0000",
       "size": 148249360,
       "type": 1
     },
@@ -55,7 +55,7 @@
       "downloadURL": "https://gh-proxy.com/https://github.com/tomoya06/esign-tmy-sources/releases/download/ipa-store/ryukgram_com.burbn.instagram_1.4.5.ipa",
       "localizedDescription": "",
       "iconURL": "https://raw.githubusercontent.com/tomoya06/esign-tmy-sources/main/assets/icons/ryukgram.png",
-      "tintColor": "",
+      "tintColor": "DD2A7B",
       "size": 339380711,
       "type": 1
     },
