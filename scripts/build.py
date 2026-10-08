@@ -446,8 +446,8 @@ def process_tg_app(app_cfg, existing):
     tmpdir = tempfile.mkdtemp()
     try:
         log(app_cfg["id"], f"下载 {info['file_name']} 到临时目录")
-        tgm.download_message_file(info, tmpdir)
-        ipa_path = Path(tmpdir) / info["file_name"]
+        downloaded = tgm.download_message_file(info, tmpdir)
+        ipa_path = Path(downloaded)
         size = ipa_path.stat().st_size
         if not bid:  # TG 消息不含 bundleId，未配置时从 IPA 自动解析
             log(app_cfg["id"], "未配置 bundleIdentifier，从 IPA 自动解析")
