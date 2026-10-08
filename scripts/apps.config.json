@@ -83,7 +83,7 @@
       "telegram": {
         "channel": "https://t.me/ryukgram",
         "filenamePattern": "(?i)^ryukgram_\\d.*\\.ipa$",
-        "versionPattern": "",
+        "versionPattern": "(\\d+(?:\\.\\d+)+)",
         "limit": 100
       },
       "enabled": true
@@ -101,7 +101,7 @@
       "telegram": {
         "channel": "https://t.me/ciesipas",
         "filenamePattern": "(?i)^com\\.soundcloud\\.touchapp.*\\.ipa$",
-        "versionPattern": "(\\d+(?:\\.\\d+)+-NexaSCb\\d+)",
+        "versionPattern": "(\\d+(?:\\.\\d+)+[-_]NexaSC-?b\\d+|-NexaSCb\\d+)",
         "limit": 150
       },
       "enabled": true
