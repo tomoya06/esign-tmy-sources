@@ -87,6 +87,24 @@
         "limit": 100
       },
       "enabled": true
+    },
+    {
+      "id": "soundcloud",
+      "name": "SoundCloud",
+      "iconURL": "",
+      "tintColor": "FF5500",
+      "developerName": "NexaSC",
+      "localizedDescription": "SoundCloud 增强版（NexaSC）：解锁 SoundCloud Go+（不含 Go+ 曲库）、去广告、可下载歌曲",
+      "versionDescription": "",
+      "bundleIdentifier": "com.soundcloud.TouchApp",
+      "updateSource": null,
+      "telegram": {
+        "channel": "https://t.me/ciesipas",
+        "filenamePattern": "(?i)^com\\.soundcloud\\.touchapp.*\\.ipa$",
+        "versionPattern": "(\\d+(?:\\.\\d+)+-NexaSCb\\d+)",
+        "limit": 150
+      },
+      "enabled": true
     }
   ]
 }

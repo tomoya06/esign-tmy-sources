@@ -58,6 +58,20 @@
       "tintColor": "",
       "size": 339380711,
       "type": 1
+    },
+    {
+      "name": "SoundCloud",
+      "bundleIdentifier": "com.soundcloud.TouchApp",
+      "developerName": "NexaSC",
+      "version": "8.75.0-NexaSCb4",
+      "versionDate": "2026-08-24T21:48:35+00:00",
+      "versionDescription": "SoundCloud v8.75.0 - NexaSC Beta v4.0\n- AppStore Link\n- Injected With NexaSC b4\n- NexaSC Features:\n• SoundCloud Go+ unlock with ads removed.\n• Download tracks\n• Automatic lyrics downloading via LRCLIB.\n• Custom music player UI for downloaded Tracks.\n• Volume boost up to 250%\n• Playback speed control up to 2.0x.\n• Download new artwork for downloaded tracks using Apple Music metadata.\n• Track trimming with custom start and end points.\n• Synced lyrics viewer with autoscroll.\n• OLED Dark Theme\n- Min",
+      "downloadURL": "https://github.com/tomoya06/esign-tmy-sources/releases/download/ipa-store/soundcloud_com.soundcloud.TouchApp_8.75.0-NexaSCb4.ipa",
+      "localizedDescription": "SoundCloud 增强版（NexaSC）：解锁 SoundCloud Go+（不含 Go+ 曲库）、去广告、可下载歌曲",
+      "iconURL": "",
+      "tintColor": "FF5500",
+      "size": 125160242,
+      "type": 1
     }
   ],
   "tintColor": "0F80FF"
