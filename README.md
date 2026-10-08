@@ -163,6 +163,7 @@ https://cdn.jsdelivr.net/gh/YOUR_NAME/YOUR_REPO@main/app.json
 - GitHub Release 来源默认直接引用 GitHub 直链（Release 资产永久有效，不占用存储）；`rehost: true` 可改为转存到 `storage` 配置的存储。
 - TG 来源每个新版本下载后自动解析 `bundleIdentifier`（若未配置）并转存到 `storage` 配置的存储（TG 文件链接会过期，必须转存）。
 - 其余来源的每个新版本 IPA 下载后上传到存储，按 `bundleIdentifier/版本` 隔离、不覆盖历史版本。
+- **下载加速**（`downloadMirror`）：配置顶层 `"downloadMirror": "https://gh-proxy.com/"` 时，所有 `github.com` 下载链接在输出层统一加镜像前缀（仅改链接不改上传方案），提升国内可达性。幂等可切换：换成其他镜像（如 `https://ghfast.top/`）或留空恢复官方直链，只改 config 一行，下一轮扫描（最长 3 小时）自动生效。镜像为公共免费服务，存在失效/限流可能，若下载失败优先检查并更换该配置。
 - `app.json` 中 `downloadURL` 写作 `https://pub-xxx.r2.dev/ipa/xxx/1.2.3.ipa` 同样支持的 `{version}` 占位符形式（客户端会自动替换为 `version` 字段的值）。
 - 版本号与现有 `app.json` 相同的条目直接跳过下载，脚本幂等。
 - **加密源（形如 `source[...]`）无法自动解析**，请使用未加密 JSON 的 ESign/AltStore 源。

@@ -538,6 +538,28 @@ def process_one(app_cfg, existing, existing_by_bid):
         return refresh_static_fields(existing, app_cfg), str(exc)
 
 
+def apply_download_mirror(url):
+    """给 GitHub release 直链套加速镜像前缀（国内下载优化）。
+
+    幂等：无论传入裸链接还是带旧镜像前缀的链接，都归一化为
+    <当前镜像><裸链接>；未配置镜像时剥离旧前缀还原直链。
+    非 github.com 链接不处理。在 render_source 输出层统一应用，
+    因此切换/清除镜像只改 config，下一轮扫描自动生效。
+    """
+    if not url or "github.com/" not in url:
+        return url
+    if "https://github.com/" in url:
+        bare = "https://github.com/" + url.split("https://github.com/", 1)[1]
+    elif "http://github.com/" in url:
+        bare = "https://github.com/" + url.split("http://github.com/", 1)[1]
+    else:
+        return url
+    mirror = str(CFG.get("downloadMirror") or "").strip()
+    if mirror and not mirror.endswith("/"):
+        mirror += "/"
+    return mirror + bare if mirror else bare
+
+
 def render_source(entries):
     src = CFG.get("source", {})
     out = {k: src.get(k, "") for k in ("name", "identifier", "sourceURL")}
@@ -545,6 +567,9 @@ def render_source(entries):
     for opt in ("iconURL", "website", "tintColor"):
         if src.get(opt):
             out[opt] = src[opt]
+    for e in out["apps"]:
+        if isinstance(e, dict) and e.get("downloadURL"):
+            e["downloadURL"] = apply_download_mirror(e["downloadURL"])
     return out
 
 
