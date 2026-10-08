@@ -149,7 +149,7 @@ https://cdn.jsdelivr.net/gh/YOUR_NAME/YOUR_REPO@main/app.json
 
 ## 工作原理与格式要点
 
-- 每天 UTC 20:00（北京时间 4:00）Actions 运行 `build.py`；也可在 Actions 页面手动触发。
+- 北京时间 9/12/15/18/21/24 点各扫一次（cron `0 1,4,7,10,13,16 * * *`，GitHub 定时可能延迟几分钟）；也可在 Actions 页面手动触发。版本未变时只检查不下载，幂等。
 - **IPA 存储**（`storage.type` 可切换）：
   - `github-release`（默认）：转存到本仓库的 `ipa-store` Release 资产，免费、单文件上限 2GB、直链永久、零额外配置（Actions 自带 token；本地运行需 `export GITHUB_TOKEN=$(gh auth token)`）。
   - `r2`：转存到 Cloudflare R2，需配置 4 个 R2 Secrets，适合需要自定义域/CDN 的场景。
