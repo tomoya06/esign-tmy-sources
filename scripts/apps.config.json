@@ -21,7 +21,7 @@
     {
       "id": "photosbackup",
       "name": "PhotosBackup",
-      "iconURL": "",
+      "iconURL": "https://raw.githubusercontent.com/tomoya06/esign-tmy-sources/main/assets/icons/photosbackup.png",
       "tintColor": "",
       "developerName": "",
       "localizedDescription": "",
@@ -38,7 +38,7 @@
     {
       "id": "redditdeluxe",
       "name": "RedditDeluxe",
-      "iconURL": "",
+      "iconURL": "https://raw.githubusercontent.com/tomoya06/esign-tmy-sources/main/assets/icons/redditdeluxe.png",
       "tintColor": "FF4500",
       "developerName": "surrel14",
       "localizedDescription": "Reddit 客户端增强 fork（RedditFilter）",
@@ -55,7 +55,7 @@
     {
       "id": "maxtube",
       "name": "MaxTube",
-      "iconURL": "",
+      "iconURL": "https://raw.githubusercontent.com/tomoya06/esign-tmy-sources/main/assets/icons/maxtube.png",
       "tintColor": "",
       "developerName": "Mark02",
       "localizedDescription": "",
@@ -73,7 +73,7 @@
     {
       "id": "ryukgram",
       "name": "RyukGram",
-      "iconURL": "",
+      "iconURL": "https://raw.githubusercontent.com/tomoya06/esign-tmy-sources/main/assets/icons/ryukgram.png",
       "tintColor": "",
       "developerName": "",
       "localizedDescription": "",
@@ -91,7 +91,7 @@
     {
       "id": "soundcloud",
       "name": "SoundCloud",
-      "iconURL": "",
+      "iconURL": "https://raw.githubusercontent.com/tomoya06/esign-tmy-sources/main/assets/icons/soundcloud.png",
       "tintColor": "FF5500",
       "developerName": "NexaSC",
       "localizedDescription": "SoundCloud 增强版（NexaSC）：解锁 SoundCloud Go+（不含 Go+ 曲库）、去广告、可下载歌曲",
@@ -109,7 +109,7 @@
     {
       "id": "aircard",
       "name": "AirCard",
-      "iconURL": "",
+      "iconURL": "https://raw.githubusercontent.com/tomoya06/esign-tmy-sources/main/assets/icons/aircard.png",
       "tintColor": "",
       "developerName": "Mak5er",
       "localizedDescription": "Apple Wallet 卡片皮肤与锁屏密码主题（iOS 27+）",

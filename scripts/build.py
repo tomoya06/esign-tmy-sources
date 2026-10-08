@@ -496,6 +496,24 @@ def find_existing(app_cfg, existing_by_bid, existing_by_name):
     return existing
 
 
+STATIC_FIELDS = ("name", "developerName", "localizedDescription", "iconURL", "tintColor", "versionDescription")
+
+
+def refresh_static_fields(entry, app_cfg):
+    """把 config 中的静态展示字段刷新进条目。
+
+    沿用旧条目（无更新/失败回落）时，config 里改名/图标/描述等变更也能生效；
+    config 留空的字段不覆盖（保留来源动态值，如 TG caption）。
+    """
+    if not isinstance(entry, dict):
+        return entry
+    for f in STATIC_FIELDS:
+        v = app_cfg.get(f)
+        if v:
+            entry[f] = v
+    return entry
+
+
 def process_one(app_cfg, existing, existing_by_bid):
     """处理单个 App，返回 (entry, error)。
 
@@ -514,10 +532,10 @@ def process_one(app_cfg, existing, existing_by_bid):
             entry = process_tg_app(app_cfg, existing)
         else:
             raise ValueError("配置缺少 updateSource 或 telegram")
-        return (entry if entry is not None else existing), None
+        return refresh_static_fields(entry if entry is not None else existing, app_cfg), None
     except Exception as exc:  # 失败容错：保留旧条目，不让单点故障毁掉整个源
         log(app_id, f"失败: {exc}")
-        return existing, str(exc)
+        return refresh_static_fields(existing, app_cfg), str(exc)
 
 
 def render_source(entries):
@@ -610,7 +628,7 @@ def cmd_merge(frag_dir):
             log("merge", f"[{app_id}] 缺少片段（job 崩溃或被取消?），回落旧条目")
         existing = find_existing(app_cfg, existing_by_bid, existing_by_name)
         if isinstance(existing, dict):
-            entries.append(existing)
+            entries.append(refresh_static_fields(existing, app_cfg))
         else:
             log("merge", f"[{app_id}] 无旧条目，本轮源中缺席")
 
