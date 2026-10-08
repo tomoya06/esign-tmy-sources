@@ -123,6 +123,24 @@
       },
       "telegram": null,
       "enabled": true
+    },
+    {
+      "id": "piliplus",
+      "name": "PiliPlus",
+      "iconURL": "https://raw.githubusercontent.com/tomoya06/esign-tmy-sources/main/assets/icons/piliplus.png",
+      "tintColor": "5DBE8A",
+      "developerName": "bggRGjQaUbCoE",
+      "localizedDescription": "PiliPlus：第三方 Bilibili 客户端（Flutter），无广告，界面简洁，支持播放增强",
+      "versionDescription": "",
+      "bundleIdentifier": "",
+      "updateSource": {
+        "type": "github-release",
+        "url": "https://github.com/bggRGjQaUbCoE/PiliPlus/releases",
+        "assetPattern": "(?i)^piliplus_ios.*\\.ipa$",
+        "rehost": false
+      },
+      "telegram": null,
+      "enabled": true
     }
   ],
   "downloadMirror": "https://gh-proxy.com/"
