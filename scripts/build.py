@@ -8,6 +8,7 @@
     TG_API_ID / TG_API_HASH / TG_SESSION                                 Telegram 凭据(仅 TG 来源需要)
 """
 
+import argparse
 import json
 import os
 import plistlib
@@ -472,61 +473,161 @@ def process_tg_app(app_cfg, existing):
     return build_entry(app_cfg, bid, meta, url, size)
 
 
-def main():
-    global CFG
-    CFG = load_json(CONFIG_PATH)
-    existing_apps = []
+def load_existing_maps():
+    """读现有 app.json，返回 (by_bundleId, by_name) 两张旧条目查找表。"""
+    apps = []
     if APP_JSON_PATH.exists():
         try:
-            existing_apps = load_json(APP_JSON_PATH).get("apps") or []
+            apps = load_json(APP_JSON_PATH).get("apps") or []
         except (ValueError, OSError):
             log("app.json", "现有 app.json 解析失败，忽略")
-    valid_existing = [a for a in existing_apps if isinstance(a, dict)]
-    existing_by_bid = {a.get("bundleIdentifier"): a for a in valid_existing}
-    existing_by_name = {a.get("name"): a for a in valid_existing}
+    valid = [a for a in apps if isinstance(a, dict)]
+    return (
+        {a.get("bundleIdentifier"): a for a in valid},
+        {a.get("name"): a for a in valid},
+    )
 
-    entries, failed = [], []
-    for app_cfg in CFG.get("apps", []):
-        if app_cfg.get("enabled") is False:
-            log(app_cfg.get("id") or app_cfg.get("name") or "unknown", "enabled=false，跳过")
-            continue
-        app_id = app_cfg.get("id") or app_cfg.get("name") or "unknown"
-        # 预查旧条目：TG 模式用配置的 bid 精确匹配；JSON 模式 bid 在源里，用 name 兜底
-        existing = existing_by_bid.get(app_cfg.get("bundleIdentifier") or "")
-        if existing is None:
-            existing = existing_by_name.get(app_cfg.get("name") or "")
-        try:
-            if app_cfg.get("updateSource"):
-                stype = str((app_cfg["updateSource"] or {}).get("type") or "esign").lower()
-                if stype in ("github-release", "githubrelease"):
-                    entry = process_gh_release(app_cfg, existing)
-                else:
-                    entry = process_json_app(app_cfg, existing_by_bid)
-            elif app_cfg.get("telegram"):
-                entry = process_tg_app(app_cfg, existing)
+
+def find_existing(app_cfg, existing_by_bid, existing_by_name):
+    """预查旧条目：TG 模式用配置的 bid 精确匹配；JSON 模式 bid 在源里，用 name 兜底。"""
+    existing = existing_by_bid.get(app_cfg.get("bundleIdentifier") or "")
+    if existing is None:
+        existing = existing_by_name.get(app_cfg.get("name") or "")
+    return existing
+
+
+def process_one(app_cfg, existing, existing_by_bid):
+    """处理单个 App，返回 (entry, error)。
+
+    entry 为本次最新条目；无更新或失败时回落 existing（可能为 None）。
+    error 非 None 表示本轮处理失败（条目仍是旧值）。
+    """
+    app_id = app_cfg.get("id") or app_cfg.get("name") or "unknown"
+    try:
+        if app_cfg.get("updateSource"):
+            stype = str((app_cfg["updateSource"] or {}).get("type") or "esign").lower()
+            if stype in ("github-release", "githubrelease"):
+                entry = process_gh_release(app_cfg, existing)
             else:
-                raise ValueError("配置缺少 updateSource 或 telegram")
-            entries.append(entry if entry is not None else existing)
-        except Exception as exc:  # 失败容错：保留旧条目，不让单点故障毁掉整个源
-            log(app_id, f"失败: {exc}")
-            failed.append(app_id)
-            if existing:
-                entries.append(existing)
+                entry = process_json_app(app_cfg, existing_by_bid)
+        elif app_cfg.get("telegram"):
+            entry = process_tg_app(app_cfg, existing)
+        else:
+            raise ValueError("配置缺少 updateSource 或 telegram")
+        return (entry if entry is not None else existing), None
+    except Exception as exc:  # 失败容错：保留旧条目，不让单点故障毁掉整个源
+        log(app_id, f"失败: {exc}")
+        return existing, str(exc)
 
+
+def render_source(entries):
     src = CFG.get("source", {})
-    out = {
-        "name": src.get("name", ""),
-        "identifier": src.get("identifier", ""),
-        "sourceURL": src.get("sourceURL", ""),
-        "apps": entries,
-    }
+    out = {k: src.get(k, "") for k in ("name", "identifier", "sourceURL")}
+    out["apps"] = entries
     for opt in ("iconURL", "website", "tintColor"):
         if src.get(opt):
             out[opt] = src[opt]
-    save_json(APP_JSON_PATH, out)
+    return out
+
+
+def enabled_apps():
+    return [a for a in CFG.get("apps", []) if a.get("enabled") is not False]
+
+
+def main():
+    """全量模式：一轮处理所有 App 并写出 app.json（本地调试用；Actions 走粒子模式）。"""
+    global CFG
+    CFG = load_json(CONFIG_PATH)
+    existing_by_bid, existing_by_name = load_existing_maps()
+
+    entries, failed = [], []
+    for app_cfg in enabled_apps():
+        app_id = app_cfg.get("id") or app_cfg.get("name") or "unknown"
+        existing = find_existing(app_cfg, existing_by_bid, existing_by_name)
+        entry, err = process_one(app_cfg, existing, existing_by_bid)
+        if err:
+            failed.append(app_id)
+        if isinstance(entry, dict):
+            entries.append(entry)
+
+    save_json(APP_JSON_PATH, render_source(entries))
     log("summary", f"共 {len(entries)} 个 App，失败 {len(failed)}{': ' + ','.join(failed) if failed else ''}")
     sys.exit(1 if failed else 0)
 
 
+def cmd_only(app_id, fragment_path):
+    """粒子模式：只同步单个 App，把结果写入片段文件供 publish 汇总。
+
+    片段内 entry 为 None 表示本轮未能产出可用条目（失败且无旧条目）。
+    """
+    global CFG
+    CFG = load_json(CONFIG_PATH)
+    candidates = [a for a in enabled_apps() if (a.get("id") or a.get("name") or "unknown") == app_id]
+    if not candidates:
+        raise SystemExit(f"未找到启用的 App 配置: {app_id}")
+    existing_by_bid, existing_by_name = load_existing_maps()
+    existing = find_existing(candidates[0], existing_by_bid, existing_by_name)
+    entry, err = process_one(candidates[0], existing, existing_by_bid)
+    if not isinstance(entry, dict):
+        entry = None
+    frag_path = Path(fragment_path)
+    frag_path.parent.mkdir(parents=True, exist_ok=True)
+    save_json(frag_path, {"id": app_id, "entry": entry, "error": err})
+    log("summary", f"[{app_id}] 片段已写出 -> {frag_path}" + (f" (错误: {err})" if err else ""))
+    sys.exit(1 if err else 0)
+
+
+def cmd_merge(frag_dir):
+    """汇总模式：合并各粒子 job 的片段，重建 app.json。
+
+    缺片段（job 崩溃/被取消）或片段无条目时，回落 app.json 旧条目，
+    保证单个 App 失败不影响整轮更新。
+    """
+    global CFG
+    CFG = load_json(CONFIG_PATH)
+    existing_by_bid, existing_by_name = load_existing_maps()
+    frag_dir = Path(frag_dir)
+
+    entries, failed, missing = [], [], []
+    for app_cfg in enabled_apps():
+        app_id = app_cfg.get("id") or app_cfg.get("name") or "unknown"
+        frag = None
+        frag_path = frag_dir / f"{app_id}.json"
+        if frag_path.exists():
+            try:
+                frag = load_json(frag_path)
+            except (ValueError, OSError):
+                frag = None
+        entry = frag.get("entry") if isinstance(frag, dict) else None
+        if isinstance(entry, dict):
+            entries.append(entry)
+            continue
+        if frag is not None:
+            failed.append(app_id)
+            log("merge", f"[{app_id}] 片段无可用条目 (error: {frag.get('error')})，回落旧条目")
+        else:
+            missing.append(app_id)
+            log("merge", f"[{app_id}] 缺少片段（job 崩溃或被取消?），回落旧条目")
+        existing = find_existing(app_cfg, existing_by_bid, existing_by_name)
+        if isinstance(existing, dict):
+            entries.append(existing)
+        else:
+            log("merge", f"[{app_id}] 无旧条目，本轮源中缺席")
+
+    save_json(APP_JSON_PATH, render_source(entries))
+    log("summary", f"共 {len(entries)} 个 App；同步失败 {len(failed)}{': ' + ','.join(failed) if failed else ''}"
+                   f"；缺片段 {len(missing)}{': ' + ','.join(missing) if missing else ''}（均已回落旧条目）")
+
+
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="构建 iOS 软件源 app.json")
+    parser.add_argument("--only", metavar="APP_ID", help="粒子模式：只同步指定 App，结果写片段文件")
+    parser.add_argument("--fragment", metavar="PATH", help="片段输出路径（配合 --only，默认 out/<APP_ID>.json）")
+    parser.add_argument("--merge", metavar="DIR", help="汇总模式：合并片段目录并写出 app.json")
+    args = parser.parse_args()
+    if args.merge:
+        cmd_merge(args.merge)
+    elif args.only:
+        cmd_only(args.only, args.fragment or f"out/{args.only}.json")
+    else:
+        main()

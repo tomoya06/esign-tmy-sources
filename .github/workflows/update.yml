@@ -14,9 +14,32 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  update:
+  # 1) 从 apps.config.json 动态生成 matrix：每个启用的 App 一个独立 job
+  prepare:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    outputs:
+      matrix: ${{ steps.gen.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: gen
+        run: |
+          MATRIX=$(python3 -c "
+          import json
+          cfg = json.load(open('scripts/apps.config.json'))
+          ids = [a.get('id') for a in cfg.get('apps', []) if a.get('enabled') is not False and a.get('id')]
+          print(json.dumps({'app': ids}))
+          ")
+          echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
+
+  # 2) 粒子同步：各 App 并行更新，互不影响
+  #    fail-fast: false 保证某个失败不取消其余；timeout 单 App 独立计时
+  sync:
+    needs: prepare
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.prepare.outputs.matrix) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
 
@@ -29,7 +52,7 @@ jobs:
       - name: Install dependencies
         run: pip install -r scripts/requirements.txt
 
-      - name: Build source
+      - name: Sync ${{ matrix.app }}
         env:
           GITHUB_TOKEN: ${{ github.token }}
           R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
@@ -39,7 +62,39 @@ jobs:
           TG_API_ID: ${{ secrets.TG_API_ID }}
           TG_API_HASH: ${{ secrets.TG_API_HASH }}
           TG_SESSION: ${{ secrets.TG_SESSION }}
-        run: python scripts/build.py
+        run: python scripts/build.py --only "${{ matrix.app }}" --fragment "out/${{ matrix.app }}.json"
+
+      - name: Upload fragment
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: entry-${{ matrix.app }}
+          path: out/
+          if-no-files-found: error
+
+  # 3) 汇总发布：合并全部片段重建 app.json 并提交
+  #    if: always() —— 即使个别 App 失败也照常发布（build.py --merge 会回落旧条目）
+  publish:
+    needs: [prepare, sync]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Download all fragments
+        uses: actions/download-artifact@v4
+        with:
+          pattern: entry-*
+          path: out/
+          merge-multiple: true
+
+      - name: Merge fragments into app.json
+        run: python scripts/build.py --merge out
 
       - name: Commit changes
         run: |
