@@ -13,6 +13,7 @@ import os
 import plistlib
 import re
 import shutil
+import subprocess
 import sys
 import tempfile
 import zipfile
@@ -108,6 +109,10 @@ def parse_github_repo(ref):
     if len(parts) == 2 and all(parts):
         return parts[0], parts[1]
     raise ValueError(f"无法识别 GitHub 仓库: {ref}")
+
+
+def gh_headers(token):
+    return {"Accept": "application/vnd.github+json", "User-Agent": UA, "Authorization": f"Bearer {token}"}
 
 
 def gh_api(url):
@@ -247,6 +252,99 @@ def rehost_to_r2(app_id, bid, version, source_url):
     return r2_download_url(CFG, bucket, bid, version), size, None
 
 
+def gh_storage_repo(st):
+    """确定 IPA 存储用的 GitHub 仓库：config > GITHUB_REPOSITORY > git remote。"""
+    repo = st.get("repo") or os.environ.get("GITHUB_REPOSITORY") or ""
+    if repo:
+        return repo
+    try:
+        out = subprocess.run(["git", "remote", "get-url", "origin"], capture_output=True, text=True, timeout=10)
+        m = re.search(r"github\.com[:/](.+?)(?:\.git)?/?$", out.stdout.strip())
+        if m:
+            return m.group(1)
+    except OSError:
+        pass
+    raise ValueError("无法确定存储仓库，请在 storage.repo 中指定")
+
+
+def gh_token():
+    token = os.environ.get("GITHUB_TOKEN") or ""
+    if not token:
+        raise ValueError("GitHub Release 存储需要 GITHUB_TOKEN（Actions 内置；本地: export GITHUB_TOKEN=$(gh auth token)）")
+    return token
+
+
+def ensure_gh_release(repo, token, tag):
+    """获取（或首次创建）存储用 Release 的 id。"""
+    headers = gh_headers(token)
+    resp = requests.get(f"https://api.github.com/repos/{repo}/releases/tags/{tag}", headers=headers, timeout=TIMEOUT)
+    if resp.status_code == 200:
+        return resp.json()["id"]
+    if resp.status_code != 404:
+        resp.raise_for_status()
+    resp = requests.post(
+        f"https://api.github.com/repos/{repo}/releases",
+        json={"tag_name": tag, "name": tag, "body": "IPA 转存（由 build.py 自动维护，请勿手动修改）"},
+        headers=headers, timeout=TIMEOUT,
+    )
+    resp.raise_for_status()
+    return resp.json()["id"]
+
+
+def gh_upload_asset(repo, token, release_id, name, path):
+    """上传 asset（同名先删），返回资产大小。"""
+    headers = gh_headers(token)
+    resp = requests.get(f"https://api.github.com/repos/{repo}/releases/{release_id}/assets?per_page=100", headers=headers, timeout=TIMEOUT)
+    resp.raise_for_status()
+    for a in resp.json():
+        if a.get("name") == name:
+            resp = requests.delete(a["url"], headers=headers, timeout=TIMEOUT)
+            resp.raise_for_status()
+    with open(path, "rb") as f:
+        resp = requests.post(
+            f"https://uploads.github.com/repos/{repo}/releases/{release_id}/assets?name={quote(name)}",
+            headers={**headers, "Content-Type": "application/octet-stream"},
+            data=f, timeout=1800,
+        )
+    resp.raise_for_status()
+    return resp.json().get("size", Path(path).stat().st_size)
+
+
+def storage_upload_file(app_id, bid, version, ipa_path):
+    """上传本地 IPA 到配置的存储（github-release / r2），返回含 {version} 占位符的 downloadURL。"""
+    st = CFG.get("storage", {}) or {}
+    if st.get("type") == "github-release":
+        repo = gh_storage_repo(st)
+        token = gh_token()
+        tag = st.get("tag") or "ipa-store"
+        release_id = ensure_gh_release(repo, token, tag)
+        name = f"{bid}_{version}.ipa"
+        size = gh_upload_asset(repo, token, release_id, name, ipa_path)
+        log(app_id, f"已上传 GitHub Release:{tag}/{name} ({size} bytes)")
+        return f"https://github.com/{repo}/releases/download/{tag}/{name}"
+    r2, err = r2_client(CFG)
+    if r2 is None:
+        raise ValueError(f"存储不可用: {err}")
+    client, bucket = r2
+    key = f"{(CFG.get('r2', {}) or {}).get('keyPrefix', 'ipa').strip('/')}/{bid}/{version}.ipa"
+    log(app_id, f"上传 -> R2:{key}")
+    client.upload_file(str(ipa_path), bucket, key)
+    return r2_download_url(CFG, bucket, bid, version)
+
+
+def rehost_to_storage(app_id, bid, version, source_url):
+    """下载 source_url 的 IPA 并转存到配置的存储，返回 (downloadURL, size, err)。"""
+    try:
+        with tempfile.TemporaryDirectory() as tmp:
+            ipa_path = Path(tmp) / f"{bid}_{version}.ipa"
+            log(app_id, f"下载 v{version} 到临时目录")
+            size = download_to_file(source_url, ipa_path)
+            url = storage_upload_file(app_id, bid, version, ipa_path)
+        return url, size, None
+    except Exception as exc:
+        return None, 0, str(exc)
+
+
 def download_to_file(url, dest):
     with requests.get(url, headers={"User-Agent": UA}, stream=True, timeout=TIMEOUT) as resp:
         resp.raise_for_status()
@@ -290,10 +388,10 @@ def process_json_app(app_cfg, existing_by_bid):
         return None  # 无变化，沿用现有条目
 
     version = sanitize_version(meta["version"])
-    url, size, err = rehost_to_r2(app_cfg["id"], bid, version, meta["downloadURL"])
+    url, size, err = rehost_to_storage(app_cfg["id"], bid, version, meta["downloadURL"])
     if err:
-        # 无 R2：JSON 源退回原始直链（可能失效），TG 源必须转存
-        log(app_cfg["id"], f"R2 不可用({err})，退回原始直链")
+        # 转存失败：JSON 源退回原始直链（可能失效），TG 源必须转存
+        log(app_cfg["id"], f"转存失败({err})，退回原始直链")
         return build_entry(app_cfg, bid, meta, meta["downloadURL"], meta.get("size"))
     log(app_cfg["id"], f"已上传 (v{meta['version']}, {size} bytes)")
     return build_entry(app_cfg, bid, meta, url, size)
@@ -317,10 +415,10 @@ def process_gh_release(app_cfg, existing):
         log(app_cfg["id"], f"使用 GitHub 直链 (v{meta['version']})")
         return build_entry(app_cfg, bid, meta, meta["downloadURL"], meta.get("size"))
 
-    url, size, err = rehost_to_r2(app_cfg["id"], bid, version, meta["downloadURL"])
+    url, size, err = rehost_to_storage(app_cfg["id"], bid, version, meta["downloadURL"])
     if err:
-        raise ValueError(f"rehost=true 但 R2 不可用: {err}")
-    log(app_cfg["id"], f"已转存 R2 (v{meta['version']}, {size} bytes)")
+        raise ValueError(f"rehost=true 但转存失败: {err}")
+    log(app_cfg["id"], f"已转存 (v{meta['version']}, {size} bytes)")
     return build_entry(app_cfg, bid, meta, url, size)
 
 
@@ -345,11 +443,6 @@ def process_tg_app(app_cfg, existing):
         log(app_cfg["id"], f"无更新 (v{version})")
         return None
 
-    r2, err = r2_client(CFG)
-    if r2 is None:
-        raise ValueError(f"Telegram 模式必须配置 R2 转存: {err}")
-    client, bucket = r2
-
     tmpdir = tempfile.mkdtemp()
     try:
         log(app_cfg["id"], f"下载 {info['file_name']} 到临时目录")
@@ -360,9 +453,7 @@ def process_tg_app(app_cfg, existing):
             log(app_cfg["id"], "未配置 bundleIdentifier，从 IPA 自动解析")
             bid = resolve_bundle_id_from_ipa_file(ipa_path)
             log(app_cfg["id"], f"解析到 bundleIdentifier: {bid}")
-        key = f"{(CFG.get('r2', {}) or {}).get('keyPrefix', 'ipa').strip('/')}/{bid}/{version}.ipa"
-        log(app_cfg["id"], f"上传 -> R2:{key}")
-        client.upload_file(str(ipa_path), bucket, key)
+        url = storage_upload_file(app_cfg["id"], bid, version, ipa_path)
     finally:
         shutil.rmtree(tmpdir, ignore_errors=True)
 
@@ -373,8 +464,7 @@ def process_tg_app(app_cfg, existing):
         "size": size,
         "iconURL": "", "tintColor": "", "developerName": "", "localizedDescription": "",
     }
-    url = r2_download_url(CFG, bucket, bid, version)
-    log(app_cfg["id"], f"已上传 (v{version}, {size} bytes)")
+    log(app_cfg["id"], f"已转存 (v{version}, {size} bytes)")
     return build_entry(app_cfg, bid, meta, url, size)
 
 

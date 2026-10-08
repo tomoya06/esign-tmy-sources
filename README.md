@@ -58,6 +58,7 @@ export all_proxy=socks5://127.0.0.1:本地代理端口
 | `TG_API_ID` | Telegram api_id（不用 TG 来源可省略） |
 | `TG_API_HASH` | Telegram api_hash |
 | `TG_SESSION` | Telethon StringSession |
+| `R2_*`（4 个） | 仅 `storage.type=r2` 时需要：`R2_ACCOUNT_ID` / `R2_ACCESS_KEY_ID` / `R2_SECRET_ACCESS_KEY` / `R2_BUCKET` |
 
 ### 5. 填写 App 配置
 
@@ -149,9 +150,13 @@ https://cdn.jsdelivr.net/gh/YOUR_NAME/YOUR_REPO@main/app.json
 ## 工作原理与格式要点
 
 - 每天 UTC 20:00（北京时间 4:00）Actions 运行 `build.py`；也可在 Actions 页面手动触发。
-- GitHub Release 来源默认直接引用 GitHub 直链（Release 资产永久有效，不占用 R2）；`rehost: true` 可改为转存 R2。`bundleIdentifier` 留空时会下载一次 IPA 从 Info.plist 自动解析。
-- TG 来源每个新版本下载后自动解析 `bundleIdentifier`（若未配置）并转存 R2（TG 文件链接会过期，必须转存）。
-- 其余来源的每个新版本 IPA 下载后上传到 R2：`{keyPrefix}/{bundleIdentifier}/{version}.ipa`，按版本隔离、不覆盖历史版本。
+- **IPA 存储**（`storage.type` 可切换）：
+  - `github-release`（默认）：转存到本仓库的 `ipa-store` Release 资产，免费、单文件上限 2GB、直链永久、零额外配置（Actions 自带 token；本地运行需 `export GITHUB_TOKEN=$(gh auth token)`）。
+  - `r2`：转存到 Cloudflare R2，需配置 4 个 R2 Secrets，适合需要自定义域/CDN 的场景。
+- `bundleIdentifier` 留空时（github-release/TG 模式）自动下载一次 IPA 从 Info.plist 解析；TG 每个新版本都下载转存（TG 文件链接会过期，必须转存）。
+- GitHub Release 来源默认直接引用 GitHub 直链（Release 资产永久有效，不占用存储）；`rehost: true` 可改为转存到 `storage` 配置的存储。
+- TG 来源每个新版本下载后自动解析 `bundleIdentifier`（若未配置）并转存到 `storage` 配置的存储（TG 文件链接会过期，必须转存）。
+- 其余来源的每个新版本 IPA 下载后上传到存储，按 `bundleIdentifier/版本` 隔离、不覆盖历史版本。
 - `app.json` 中 `downloadURL` 写作 `https://pub-xxx.r2.dev/ipa/xxx/1.2.3.ipa` 同样支持的 `{version}` 占位符形式（客户端会自动替换为 `version` 字段的值）。
 - 版本号与现有 `app.json` 相同的条目直接跳过下载，脚本幂等。
 - **加密源（形如 `source[...]`）无法自动解析**，请使用未加密 JSON 的 ESign/AltStore 源。
