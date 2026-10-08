@@ -105,6 +105,24 @@
         "limit": 150
       },
       "enabled": true
+    },
+    {
+      "id": "aircard",
+      "name": "AirCard",
+      "iconURL": "",
+      "tintColor": "",
+      "developerName": "Mak5er",
+      "localizedDescription": "Apple Wallet 卡片皮肤与锁屏密码主题（iOS 27+）",
+      "versionDescription": "",
+      "bundleIdentifier": "",
+      "updateSource": {
+        "type": "github-release",
+        "url": "https://github.com/Mak5er/AirCard-iOS/releases",
+        "assetPattern": "(?i)^aircard.*\\.ipa$",
+        "rehost": false
+      },
+      "telegram": null,
+      "enabled": true
     }
   ]
 }
