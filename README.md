@@ -49,16 +49,16 @@ export all_proxy=socks5://127.0.0.1:本地代理端口
 
 ### 4. 配置 Secrets（仓库 Settings → Secrets and variables → Actions）
 
-| Secret 名 | 说明 |
-|---|---|
-| `R2_ACCOUNT_ID` | Cloudflare Account ID |
-| `R2_ACCESS_KEY_ID` | R2 API Token 的 Access Key ID |
-| `R2_SECRET_ACCESS_KEY` | R2 API Token 的 Secret Access Key |
-| `R2_BUCKET` | R2 桶名 |
-| `TG_API_ID` | Telegram api_id（不用 TG 来源可省略） |
-| `TG_API_HASH` | Telegram api_hash |
-| `TG_SESSION` | Telethon StringSession |
-| `R2_*`（4 个） | 仅 `storage.type=r2` 时需要：`R2_ACCOUNT_ID` / `R2_ACCESS_KEY_ID` / `R2_SECRET_ACCESS_KEY` / `R2_BUCKET` |
+| Secret 名              | 说明                                                                                                     |
+| ---------------------- | -------------------------------------------------------------------------------------------------------- |
+| `R2_ACCOUNT_ID`        | Cloudflare Account ID                                                                                    |
+| `R2_ACCESS_KEY_ID`     | R2 API Token 的 Access Key ID                                                                            |
+| `R2_SECRET_ACCESS_KEY` | R2 API Token 的 Secret Access Key                                                                        |
+| `R2_BUCKET`            | R2 桶名                                                                                                  |
+| `TG_API_ID`            | Telegram api_id（不用 TG 来源可省略）                                                                    |
+| `TG_API_HASH`          | Telegram api_hash                                                                                        |
+| `TG_SESSION`           | Telethon StringSession                                                                                   |
+| `R2_*`（4 个）         | 仅 `storage.type=r2` 时需要：`R2_ACCOUNT_ID` / `R2_ACCESS_KEY_ID` / `R2_SECRET_ACCESS_KEY` / `R2_BUCKET` |
 
 ### 5. 填写 App 配置
 
@@ -90,53 +90,59 @@ https://cdn.jsdelivr.net/gh/YOUR_NAME/YOUR_REPO@main/app.json
 
 ```jsonc
 {
-  "source": {                      // 生成到 app.json 顶层的源信息
+  "source": {
+    // 生成到 app.json 顶层的源信息
     "name": "源名称",
     "identifier": "源唯一标识",
     "sourceURL": "本源自身的访问地址",
-    "iconURL": "", "website": "", "tintColor": ""
+    "iconURL": "",
+    "website": "",
+    "tintColor": "",
   },
   "r2": {
-    "publicBaseURL": "https://pub-xxx.r2.dev",  // R2 公开访问基础地址
-    "keyPrefix": "ipa",                          // R2 对象 key 前缀
-    "bucket": "qnz-ipa"                          // 兜底桶名（Secrets 未配置时用）
+    "publicBaseURL": "https://pub-xxx.r2.dev", // R2 公开访问基础地址
+    "keyPrefix": "ipa", // R2 对象 key 前缀
+    "bucket": "qnz-ipa", // 兜底桶名（Secrets 未配置时用）
   },
   "apps": [
     {
       "id": "唯一ID",
       "name": "App 显示名",
-      "updateSource": {                 // 方式一：普通 JSON 更新源
-        "type": "esign",                // esign | altstore（均需未加密 JSON）
+      "updateSource": {
+        // 方式一：普通 JSON 更新源
+        "type": "esign", // esign | altstore（均需未加密 JSON）
         "url": "https://xxx/app.json",
-        "bundleIdentifier": ""          // 留空则自动从更新源读取
+        "bundleIdentifier": "", // 留空则自动从更新源读取
       },
-      "telegram": null
+      "telegram": null,
     },
     {
       "id": "唯一ID",
       "name": "App 显示名",
-      "updateSource": {                 // 方式二：GitHub Release
+      "updateSource": {
+        // 方式二：GitHub Release
         "type": "github-release",
-        "url": "https://github.com/owner/repo/releases",  // 或简写 owner/repo
-        "assetPattern": "(?i)\\.ipa$",  // 匹配 Release 附件，默认取 .ipa 结尾的
-        "rehost": false                 // false=直接引用 GitHub 直链(永久有效)；true=转存 R2
+        "url": "https://github.com/owner/repo/releases", // 或简写 owner/repo
+        "assetPattern": "(?i)\\.ipa$", // 匹配 Release 附件，默认取 .ipa 结尾的
+        "rehost": false, // false=直接引用 GitHub 直链(永久有效)；true=转存 R2
       },
-      "bundleIdentifier": "",           // 留空则首次运行时从 IPA 自动解析
-      "telegram": null
+      "bundleIdentifier": "", // 留空则首次运行时从 IPA 自动解析
+      "telegram": null,
     },
     {
       "id": "唯一ID",
       "name": "App 显示名",
       "updateSource": null,
-      "telegram": {                     // 方式三：Telegram 公开频道
+      "telegram": {
+        // 方式三：Telegram 公开频道
         "channel": "@channel_name",
-        "filenamePattern": "(?i)^xxx.*\\.ipa$",  // 匹配消息中的文件名
-        "versionPattern": "(\\d+(?:\\.\\d+)+)",  // 从文件名提取版本号
-        "limit": 100                    // 回溯检查的消息条数
+        "filenamePattern": "(?i)^xxx.*\\.ipa$", // 匹配消息中的文件名
+        "versionPattern": "(\\d+(?:\\.\\d+)+)", // 从文件名提取版本号
+        "limit": 100, // 回溯检查的消息条数
       },
-      "bundleIdentifier": "com.xxx.xxx" // TG 消息里没有：可手填，或留空首次运行时自动解析
-    }
-  ]
+      "bundleIdentifier": "com.xxx.xxx", // TG 消息里没有：可手填，或留空首次运行时自动解析
+    },
+  ],
 }
 ```
 
