@@ -149,6 +149,26 @@ def pick_github_release(src):
     }
 
 
+def itunes_release_notes(bid):
+    """App Store 官方更新说明兜底（上游 release 不写 notes 时）。
+
+    适用于「官方 App + tweak 注入」类项目：版本号即官方 App 版本，
+    App Store 的 releaseNotes 就是底座更新说明。查询失败静默返回空，不阻断构建。
+    """
+    if not bid:
+        return ""
+    try:
+        resp = requests.get(
+            f"https://itunes.apple.com/lookup?bundleId={bid}&country=us",
+            headers={"User-Agent": UA}, timeout=TIMEOUT,
+        )
+        resp.raise_for_status()
+        res = resp.json().get("results") or []
+        return (res[0].get("releaseNotes") or "").strip() if res else ""
+    except Exception:
+        return ""
+
+
 def resolve_bundle_id_from_ipa_file(ipa_path):
     """从已下载的 IPA 内 Payload/*.app/Info.plist 解析 CFBundleIdentifier。"""
     with zipfile.ZipFile(ipa_path) as z:
@@ -407,8 +427,14 @@ def process_gh_release(app_cfg, existing):
     meta = pick_github_release(src)
     version = sanitize_version(meta["version"])
     if existing and existing.get("version") == str(meta["version"]):
+        # 无更新：上游无更新日志时用 App Store 官方说明补齐（补齐后非空不再查询，保持幂等）
+        if not existing.get("versionDescription") and not app_cfg.get("versionDescription"):
+            notes = itunes_release_notes(existing.get("bundleIdentifier") or app_cfg.get("bundleIdentifier") or "")
+            if notes:
+                existing["versionDescription"] = notes
+                log(app_cfg["id"], "已补 App Store 官方更新说明")
         log(app_cfg["id"], f"无更新 (v{meta['version']})")
-        return None
+        return existing
 
     bid = app_cfg.get("bundleIdentifier") or ""
     if not bid:  # GitHub Release 元数据不含 bundleId，未配置时从 IPA 自动解析
@@ -418,6 +444,8 @@ def process_gh_release(app_cfg, existing):
 
     if not src.get("rehost"):  # Release 直链永久有效，默认直接引用不转存
         log(app_cfg["id"], f"使用 GitHub 直链 (v{meta['version']})")
+        if not meta.get("versionDescription"):
+            meta["versionDescription"] = itunes_release_notes(bid)
         return build_entry(app_cfg, bid, meta, meta["downloadURL"], meta.get("size"))
 
     url, size, err = rehost_to_storage(app_cfg["id"], bid, version, meta["downloadURL"])

@@ -41,7 +41,7 @@
       "iconURL": "https://raw.githubusercontent.com/tomoya06/esign-tmy-sources/main/assets/icons/redditdeluxe.png",
       "tintColor": "FF4500",
       "developerName": "surrel14",
-      "localizedDescription": "Reddit 客户端增强 fork（RedditFilter）",
+      "localizedDescription": "RedditDeluxe：官方 Reddit 客户端自动注入增强 tweak（RedditFilter 可复现构建），随 Reddit 官方版本同步更新",
       "versionDescription": "",
       "bundleIdentifier": "",
       "updateSource": {
