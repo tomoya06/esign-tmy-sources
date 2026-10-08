@@ -58,20 +58,6 @@
       "tintColor": "",
       "size": 339380711,
       "type": 1
-    },
-    {
-      "name": "RyukGram No-Plugins",
-      "bundleIdentifier": "com.burbn.instagram",
-      "developerName": "",
-      "version": "1.4.5",
-      "versionDate": "2026-10-03T10:21:01+00:00",
-      "versionDescription": "",
-      "downloadURL": "https://github.com/tomoya06/esign-tmy-sources/releases/download/ipa-store/ryukgram-noplugins_com.burbn.instagram_1.4.5.ipa",
-      "localizedDescription": "",
-      "iconURL": "",
-      "tintColor": "",
-      "size": 269519749,
-      "type": 1
     }
   ],
   "tintColor": "0F80FF"

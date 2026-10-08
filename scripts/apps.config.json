@@ -87,24 +87,6 @@
         "limit": 100
       },
       "enabled": true
-    },
-    {
-      "id": "ryukgram-noplugins",
-      "name": "RyukGram No-Plugins",
-      "iconURL": "",
-      "tintColor": "",
-      "developerName": "",
-      "localizedDescription": "",
-      "versionDescription": "",
-      "bundleIdentifier": "",
-      "updateSource": null,
-      "telegram": {
-        "channel": "https://t.me/ryukgram",
-        "filenamePattern": "(?i)^ryukgram-no-plugins.*\\.ipa$",
-        "versionPattern": "",
-        "limit": 100
-      },
-      "enabled": true
     }
   ]
 }
