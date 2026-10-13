@@ -109,6 +109,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "No changes"
           else
-            git commit -m "chore: auto update source $(date -u +%F)"
+            if [ -f out/commit_msg.txt ]; then git commit -F out/commit_msg.txt; else git commit -m "chore: auto update source $(date -u +%F)"; fi
             git push
           fi

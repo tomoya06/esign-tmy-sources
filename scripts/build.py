@@ -606,6 +606,58 @@ def enabled_apps():
     return [a for a in CFG.get("apps", []) if a.get("enabled") is not False]
 
 
+def judge_status(app_cfg, old, new, err):
+    """判定单个 App 本轮状态，返回 (status, old_v, new_v)。
+
+    status: updated / unchanged / failed / missing / absent。
+    对比基于同样经过 refresh_static_fields 的新旧条目，config 静态字段变更不误报为更新。
+    """
+    old_r = refresh_static_fields(dict(old), app_cfg) if isinstance(old, dict) else None
+    old_v = (old_r or {}).get("version") or ""
+    if not isinstance(new, dict):
+        if err:
+            return "failed", old_v, old_v
+        return ("absent", old_v, "") if old_r is None else ("unchanged", old_v, old_v)
+    if err:
+        return "failed", old_v, old_v
+    # 片段里 downloadURL 是裸 GitHub 链接，旧条目可能已被上一轮镜像化；对比前两边归一化，避免误报
+    norm = lambda d: {**d, "downloadURL": apply_download_mirror(d.get("downloadURL"))} if isinstance(d, dict) else d
+    changed = norm(new) != norm(old_r)
+    return ("updated" if changed else "unchanged"), old_v, new.get("version") or ""
+
+
+def render_summary(rows):
+    """把本轮各 App 结果渲染成 Markdown（写入 GitHub Job Summary，本地打印到 stdout）。"""
+    icons = {
+        "updated": "🔄 已更新",
+        "unchanged": "✅ 无更新",
+        "failed": "⚠️ 同步失败（回落旧版本）",
+        "missing": "➖ 缺片段（回落旧版本）",
+        "absent": "❔ 无旧条目且未产出",
+    }
+    lines = ["## 本轮更新摘要", "", "| App | 结果 | 版本 |", "|---|---|---|"]
+    for r in rows:
+        if r["status"] == "updated":
+            ver = f"{r['old_v'] or '∅'} → {r['new_v'] or '∅'}"
+        else:
+            ver = r["new_v"] or r["old_v"] or "—"
+        extra = f"（{r['error']}）" if r.get("error") else ""
+        lines.append(f"| {r['name']} | {icons.get(r['status'], r['status'])}{extra} | {ver} |")
+    n = lambda s: sum(1 for r in rows if r["status"] == s)
+    lines += ["", f"共 {len(rows)} 个 App：更新 {n('updated')} · 无更新 {n('unchanged')} · 失败 {n('failed')} · 缺片段 {n('missing')}"]
+    return "\n".join(lines)
+
+
+def write_summary(markdown, frag_dir=None):
+    """写入 GitHub Job Summary（run 页面顶部展示）；本地无该环境变量时打印。"""
+    path = os.environ.get("GITHUB_STEP_SUMMARY")
+    if path:
+        with open(path, "a", encoding="utf-8") as f:
+            f.write(markdown + "\n")
+    else:
+        print(markdown)
+
+
 def main():
     """全量模式：一轮处理所有 App 并写出 app.json（本地调试用；Actions 走粒子模式）。"""
     global CFG
@@ -613,6 +665,7 @@ def main():
     existing_by_bid, existing_by_name = load_existing_maps()
 
     entries, failed = [], []
+    rows = []
     for app_cfg in enabled_apps():
         app_id = app_cfg.get("id") or app_cfg.get("name") or "unknown"
         existing = find_existing(app_cfg, existing_by_bid, existing_by_name)
@@ -621,9 +674,12 @@ def main():
             failed.append(app_id)
         if isinstance(entry, dict):
             entries.append(entry)
+        status, old_v, new_v = judge_status(app_cfg, existing, entry if isinstance(entry, dict) else None, err)
+        rows.append({"id": app_id, "name": app_cfg.get("name") or app_id, "status": status, "old_v": old_v, "new_v": new_v, "error": err})
 
     save_json(APP_JSON_PATH, render_source(entries))
     log("summary", f"共 {len(entries)} 个 App，失败 {len(failed)}{': ' + ','.join(failed) if failed else ''}")
+    write_summary(render_summary(rows))
     sys.exit(1 if failed else 0)
 
 
@@ -661,6 +717,7 @@ def cmd_merge(frag_dir):
     frag_dir = Path(frag_dir)
 
     entries, failed, missing = [], [], []
+    rows = []
     for app_cfg in enabled_apps():
         app_id = app_cfg.get("id") or app_cfg.get("name") or "unknown"
         frag = None
@@ -673,22 +730,35 @@ def cmd_merge(frag_dir):
         entry = frag.get("entry") if isinstance(frag, dict) else None
         if isinstance(entry, dict):
             entries.append(entry)
+            status, old_v, new_v = judge_status(app_cfg, find_existing(app_cfg, existing_by_bid, existing_by_name), entry, None)
+            rows.append({"id": app_id, "name": app_cfg.get("name") or app_id, "status": status, "old_v": old_v, "new_v": new_v, "error": None})
             continue
+        error = None
         if frag is not None:
             failed.append(app_id)
-            log("merge", f"[{app_id}] 片段无可用条目 (error: {frag.get('error')})，回落旧条目")
+            error = frag.get("error")
+            log("merge", f"[{app_id}] 片段无可用条目 (error: {error})，回落旧条目")
         else:
             missing.append(app_id)
             log("merge", f"[{app_id}] 缺少片段（job 崩溃或被取消?），回落旧条目")
         existing = find_existing(app_cfg, existing_by_bid, existing_by_name)
         if isinstance(existing, dict):
-            entries.append(refresh_static_fields(existing, app_cfg))
+            final = refresh_static_fields(existing, app_cfg)
+            entries.append(final)
+            rows.append({"id": app_id, "name": app_cfg.get("name") or app_id, "status": "failed" if frag is not None else "missing", "old_v": existing.get("version") or "", "new_v": existing.get("version") or "", "error": error})
         else:
             log("merge", f"[{app_id}] 无旧条目，本轮源中缺席")
+            rows.append({"id": app_id, "name": app_cfg.get("name") or app_id, "status": "absent", "old_v": "", "new_v": "", "error": error})
 
     save_json(APP_JSON_PATH, render_source(entries))
     log("summary", f"共 {len(entries)} 个 App；同步失败 {len(failed)}{': ' + ','.join(failed) if failed else ''}"
                    f"；缺片段 {len(missing)}{': ' + ','.join(missing) if missing else ''}（均已回落旧条目）")
+    write_summary(render_summary(rows))
+    updated = [r for r in rows if r["status"] == "updated"]
+    if updated and frag_dir.exists():
+        names = ", ".join(f"{r['name']} {r['old_v']}→{r['new_v']}" for r in updated)
+        msg = f"chore: 更新 {names}" if len(updated) <= 3 else f"chore: 更新 {len(updated)} 个 App（{names[:150]}...）"
+        (frag_dir / "commit_msg.txt").write_text(msg + "\n", encoding="utf-8")
 
 
 if __name__ == "__main__":
