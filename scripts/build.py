@@ -18,7 +18,7 @@ import subprocess
 import sys
 import tempfile
 import zipfile
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from urllib.parse import quote
 
@@ -626,8 +626,12 @@ def judge_status(app_cfg, old, new, err):
     return ("updated" if changed else "unchanged"), old_v, new.get("version") or ""
 
 
-def render_summary(rows):
-    """把本轮各 App 结果渲染成 Markdown（写入 GitHub Job Summary，本地打印到 stdout）。"""
+BJT = timezone(timedelta(hours=8))  # 北京时间（用于日志/变更记录展示）
+CHANGELOG_KEEP = 60  # CHANGELOG.md 保留最近轮数
+
+
+def render_table(rows):
+    """渲染各 App 结果表格 + 统计行（不含标题）。"""
     icons = {
         "updated": "🔄 已更新",
         "unchanged": "✅ 无更新",
@@ -635,7 +639,7 @@ def render_summary(rows):
         "missing": "➖ 缺片段（回落旧版本）",
         "absent": "❔ 无旧条目且未产出",
     }
-    lines = ["## 本轮更新摘要", "", "| App | 结果 | 版本 |", "|---|---|---|"]
+    lines = ["| App | 结果 | 版本 |", "|---|---|---|"]
     for r in rows:
         if r["status"] == "updated":
             ver = f"{r['old_v'] or '∅'} → {r['new_v'] or '∅'}"
@@ -646,6 +650,49 @@ def render_summary(rows):
     n = lambda s: sum(1 for r in rows if r["status"] == s)
     lines += ["", f"共 {len(rows)} 个 App：更新 {n('updated')} · 无更新 {n('unchanged')} · 失败 {n('failed')} · 缺片段 {n('missing')}"]
     return "\n".join(lines)
+
+
+def render_summary(rows):
+    """本轮 Job Summary（run 页面顶部展示）。"""
+    return "## 本轮更新摘要\n\n" + render_table(rows)
+
+
+def append_changelog(rows):
+    """把本轮结果追加到仓库根 CHANGELOG.md（新条目置顶，保留最近 CHANGELOG_KEEP 轮）。
+
+    这是变更日志的主入口：仓库首页/手机上直接看文件即可，不依赖 Actions 页面。
+    """
+    src = os.environ.get("GITHUB_EVENT_NAME") or "manual"
+    now = datetime.now(BJT).strftime("%Y-%m-%d %H:%M")
+    block = f"## {now} · {src}\n\n{render_table(rows)}\n"
+    path = Path("CHANGELOG.md")
+    if path.exists():
+        parts = path.read_text(encoding="utf-8").split("\n## ")
+        header, blocks = parts[0], ["## " + p for p in parts[1:]]
+    else:
+        header = (f"# 更新日志\n\n> 每轮自动检查的结果记录（北京时间，保留最近 {CHANGELOG_KEEP} 轮）。\n")
+        blocks = []
+    blocks.insert(0, block)
+    path.write_text(header + "\n" + "\n".join(blocks[:CHANGELOG_KEEP]), encoding="utf-8")
+    log("changelog", f"已写入 CHANGELOG.md（当前 {min(len(blocks), CHANGELOG_KEEP)} 轮记录）")
+
+
+def commit_message(rows):
+    """本轮 commit message：有更新列清单，无更新也明确记录例行检查结果。"""
+    now = datetime.now(BJT).strftime("%m-%d %H:%M")
+    ups = [r for r in rows if r["status"] == "updated"]
+    if ups:
+        names = ", ".join(f"{r['name']} {r['old_v']}→{r['new_v']}" for r in ups[:3])
+        if len(ups) > 3:
+            names += f" 等 {len(ups)} 个"
+        return f"chore: 更新 {names}（{now} 北京）"
+    bad = [r for r in rows if r["status"] in ("failed", "missing")]
+    if bad:
+        names = ", ".join(r["name"] for r in bad[:3]) + (f" 等 {len(bad)} 个" if len(bad) > 3 else "")
+        note = f"，{names} 异常回落"
+    else:
+        note = ""
+    return f"chore: 例行检查 — 全部无更新{note}（{now} 北京）"
 
 
 def write_summary(markdown, frag_dir=None):
@@ -730,8 +777,9 @@ def cmd_merge(frag_dir):
         entry = frag.get("entry") if isinstance(frag, dict) else None
         if isinstance(entry, dict):
             entries.append(entry)
-            status, old_v, new_v = judge_status(app_cfg, find_existing(app_cfg, existing_by_bid, existing_by_name), entry, None)
-            rows.append({"id": app_id, "name": app_cfg.get("name") or app_id, "status": status, "old_v": old_v, "new_v": new_v, "error": None})
+            frag_error = frag.get("error") if isinstance(frag, dict) else None
+            status, old_v, new_v = judge_status(app_cfg, find_existing(app_cfg, existing_by_bid, existing_by_name), entry, frag_error)
+            rows.append({"id": app_id, "name": app_cfg.get("name") or app_id, "status": status, "old_v": old_v, "new_v": new_v, "error": frag_error})
             continue
         error = None
         if frag is not None:
@@ -754,11 +802,8 @@ def cmd_merge(frag_dir):
     log("summary", f"共 {len(entries)} 个 App；同步失败 {len(failed)}{': ' + ','.join(failed) if failed else ''}"
                    f"；缺片段 {len(missing)}{': ' + ','.join(missing) if missing else ''}（均已回落旧条目）")
     write_summary(render_summary(rows))
-    updated = [r for r in rows if r["status"] == "updated"]
-    if updated and frag_dir.exists():
-        names = ", ".join(f"{r['name']} {r['old_v']}→{r['new_v']}" for r in updated)
-        msg = f"chore: 更新 {names}" if len(updated) <= 3 else f"chore: 更新 {len(updated)} 个 App（{names[:150]}...）"
-        (frag_dir / "commit_msg.txt").write_text(msg + "\n", encoding="utf-8")
+    append_changelog(rows)
+    (frag_dir / "commit_msg.txt").write_text(commit_message(rows) + "\n", encoding="utf-8")
 
 
 if __name__ == "__main__":
