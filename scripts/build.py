@@ -628,6 +628,8 @@ def judge_status(app_cfg, old, new, err):
 
 BJT = timezone(timedelta(hours=8))  # 北京时间（用于日志/变更记录展示）
 CHANGELOG_KEEP = 60  # CHANGELOG.md 保留最近轮数
+README_MARK_START = "<!-- changelog:start -->"  # README 最近更新区块边界
+README_MARK_END = "<!-- changelog:end -->"
 
 
 def render_table(rows):
@@ -657,14 +659,19 @@ def render_summary(rows):
     return "## 本轮更新摘要\n\n" + render_table(rows)
 
 
+def round_head():
+    """本轮“时间 · 触发来源”标识行（CHANGELOG 条目与 README 区块共用）。"""
+    src = os.environ.get("GITHUB_EVENT_NAME") or "manual"
+    return f"{datetime.now(BJT).strftime('%Y-%m-%d %H:%M')} · {src}"
+
+
 def append_changelog(rows):
     """把本轮结果追加到仓库根 CHANGELOG.md（新条目置顶，保留最近 CHANGELOG_KEEP 轮）。
 
     这是变更日志的主入口：仓库首页/手机上直接看文件即可，不依赖 Actions 页面。
     """
-    src = os.environ.get("GITHUB_EVENT_NAME") or "manual"
-    now = datetime.now(BJT).strftime("%Y-%m-%d %H:%M")
-    block = f"## {now} · {src}\n\n{render_table(rows)}\n"
+    src = round_head()
+    block = f"## {src}\n\n{render_table(rows)}\n"
     path = Path("CHANGELOG.md")
     if path.exists():
         parts = path.read_text(encoding="utf-8").split("\n## ")
@@ -675,6 +682,22 @@ def append_changelog(rows):
     blocks.insert(0, block)
     path.write_text(header + "\n" + "\n".join(blocks[:CHANGELOG_KEEP]), encoding="utf-8")
     log("changelog", f"已写入 CHANGELOG.md（当前 {min(len(blocks), CHANGELOG_KEEP)} 轮记录）")
+
+
+def update_readme(rows):
+    """刷新 README.md 的最近更新区块（标记之间整体替换，仅展示最近一轮，完整历史指向 CHANGELOG）。"""
+    path = Path("README.md")
+    if not path.exists():
+        return
+    text = path.read_text(encoding="utf-8")
+    start = text.find(README_MARK_START)
+    end = text.find(README_MARK_END)
+    if start == -1 or end == -1 or end < start:
+        log("readme", "README.md 缺少 changelog 标记，跳过刷新")
+        return
+    inner = f"### {round_head()}\n\n{render_table(rows)}\n\n**[完整更新日志 →](CHANGELOG.md)**\n"
+    path.write_text(text[:start] + README_MARK_START + "\n" + inner + text[end:], encoding="utf-8")
+    log("readme", "已刷新 README.md 最近更新区块")
 
 
 def commit_message(rows):
@@ -803,6 +826,7 @@ def cmd_merge(frag_dir):
                    f"；缺片段 {len(missing)}{': ' + ','.join(missing) if missing else ''}（均已回落旧条目）")
     write_summary(render_summary(rows))
     append_changelog(rows)
+    update_readme(rows)
     (frag_dir / "commit_msg.txt").write_text(commit_message(rows) + "\n", encoding="utf-8")
 
 
