@@ -26,20 +26,20 @@ https://raw.githubusercontent.com/tomoya06/esign-tmy-sources/main/app.json
 ## 最近更新
 
 <!-- changelog:start -->
-### 2026-10-23 01:55 · schedule
+### 2026-10-23 13:48 · schedule
 
 | App | 结果 | 版本 |
 |---|---|---|
 | PhotosBackup | ✅ 无更新 | 0.3.7 |
 | RedditDeluxe | ✅ 无更新 | 2026.40.0 |
-| MaxTube | 🔄 已更新 | 21.40.5_6.0b2 → 21.42.4_6.0b2 |
+| MaxTube | ✅ 无更新 | 21.42.4_6.0b2 |
 | RyukGram | ✅ 无更新 | 1.4.5 |
 | SoundCloud | ✅ 无更新 | 8.75.0-NexaSCb4 |
 | AirCard | ✅ 无更新 | 1.3.2 |
 | PiliPlus | ✅ 无更新 | 2.1.6.2 |
 | Spotify | ✅ 无更新 | 9.1.88 |
 
-共 8 个 App：更新 1 · 无更新 7 · 失败 0 · 缺片段 0
+共 8 个 App：更新 0 · 无更新 8 · 失败 0 · 缺片段 0
 
 **[完整更新日志 →](CHANGELOG.md)**
 <!-- changelog:end -->
