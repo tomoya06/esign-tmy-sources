@@ -27,11 +27,11 @@ https://raw.githubusercontent.com/tomoya06/esign-tmy-sources/main/app.json
 ## 最近更新
 
 <!-- changelog:start -->
-### 2026-10-26 10:28 · workflow_dispatch
+### 2026-10-26 11:58 · workflow_dispatch
 
 | App | 结果 | 版本 |
 |---|---|---|
-| DjuuMusic | 🔄 已更新 | 1.0.0 → 1.0.1 |
+| DjuuMusic | 🔄 已更新 | 1.0.1 → 1.0.2 |
 | PhotosBackup | ✅ 无更新 | 0.3.7 |
 | RedditDeluxe | ✅ 无更新 | 2026.40.0 |
 | MaxTube | ✅ 无更新 | 21.42.4_6.0b2 |
