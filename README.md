@@ -14,6 +14,7 @@ https://raw.githubusercontent.com/tomoya06/esign-tmy-sources/main/app.json
 
 | App | 简介 |
 | --- | --- |
+| DjuuMusic | DJ呦呦（m.djuu.com）第三方 iOS 原生客户端（自研，液态玻璃 UI） |
 | Spotify | 增强版（EeveeSpotifyReincarnated）：解锁 Premium |
 | MaxTube | YouTube 增强版（免广告、后台播放） |
 | RyukGram | Instagram 增强版 |

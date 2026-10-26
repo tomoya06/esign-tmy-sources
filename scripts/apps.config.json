@@ -19,6 +19,24 @@
   },
   "apps": [
     {
+      "id": "djuumusic",
+      "name": "DjuuMusic",
+      "iconURL": "https://raw.githubusercontent.com/tomoya06/esign-tmy-sources/main/assets/icons/djuumusic.png",
+      "tintColor": "B4426A",
+      "developerName": "tomoya06",
+      "localizedDescription": "DJ呦呦（m.djuu.com）第三方 iOS 原生客户端：DJ 舞曲/串烧在线播放，液态玻璃 UI，支持收藏、播放队列、锁屏控制与 CarPlay，未签名需自签安装",
+      "versionDescription": "",
+      "bundleIdentifier": "com.djuu.music",
+      "updateSource": {
+        "type": "github-release",
+        "url": "https://github.com/tomoya06/DjuuMusic/releases",
+        "assetPattern": "(?i)^djuumusic.*\\.ipa$",
+        "rehost": false
+      },
+      "telegram": null,
+      "enabled": true
+    },
+    {
       "id": "photosbackup",
       "name": "PhotosBackup",
       "iconURL": "https://raw.githubusercontent.com/tomoya06/esign-tmy-sources/main/assets/icons/photosbackup.png",
