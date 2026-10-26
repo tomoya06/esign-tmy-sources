@@ -2,6 +2,22 @@
 
 > 每轮自动检查的结果记录（北京时间，保留最近 60 轮）。
 
+## 2026-10-26 09:32 · workflow_dispatch
+
+| App | 结果 | 版本 |
+|---|---|---|
+| DjuuMusic | 🔄 已更新 | ∅ → 1.0.0 |
+| PhotosBackup | ✅ 无更新 | 0.3.7 |
+| RedditDeluxe | ✅ 无更新 | 2026.40.0 |
+| MaxTube | ✅ 无更新 | 21.42.4_6.0b2 |
+| RyukGram | ✅ 无更新 | 1.5.0 |
+| SoundCloud | ✅ 无更新 | 8.75.0-NexaSCb4 |
+| AirCard | ✅ 无更新 | 1.3.2 |
+| PiliPlus | ✅ 无更新 | 2.1.6.2 |
+| Spotify | ✅ 无更新 | 9.1.88 |
+
+共 9 个 App：更新 1 · 无更新 8 · 失败 0 · 缺片段 0
+
 ## 2026-10-26 09:26 · workflow_dispatch
 
 | App | 结果 | 版本 |
