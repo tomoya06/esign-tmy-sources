@@ -27,10 +27,11 @@ https://raw.githubusercontent.com/tomoya06/esign-tmy-sources/main/app.json
 ## 最近更新
 
 <!-- changelog:start -->
-### 2026-10-26 00:59 · schedule
+### 2026-10-26 09:26 · workflow_dispatch
 
 | App | 结果 | 版本 |
 |---|---|---|
+| DjuuMusic | ❔ 无旧条目且未产出（404 Client Error: Not Found for url: https://api.github.com/repos/tomoya06/DjuuMusic/releases/latest） | — |
 | PhotosBackup | ✅ 无更新 | 0.3.7 |
 | RedditDeluxe | ✅ 无更新 | 2026.40.0 |
 | MaxTube | ✅ 无更新 | 21.42.4_6.0b2 |
@@ -40,7 +41,7 @@ https://raw.githubusercontent.com/tomoya06/esign-tmy-sources/main/app.json
 | PiliPlus | ✅ 无更新 | 2.1.6.2 |
 | Spotify | ✅ 无更新 | 9.1.88 |
 
-共 8 个 App：更新 0 · 无更新 8 · 失败 0 · 缺片段 0
+共 9 个 App：更新 0 · 无更新 8 · 失败 0 · 缺片段 0
 
 **[完整更新日志 →](CHANGELOG.md)**
 <!-- changelog:end -->
