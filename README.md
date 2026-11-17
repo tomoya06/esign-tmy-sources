@@ -26,7 +26,7 @@ https://raw.githubusercontent.com/tomoya06/esign-tmy-sources/main/app.json
 ## 最近更新
 
 <!-- changelog:start -->
-### 2026-11-17 04:02 · schedule
+### 2026-11-17 16:51 · schedule
 
 | App | 结果 | 版本 |
 |---|---|---|
@@ -38,9 +38,9 @@ https://raw.githubusercontent.com/tomoya06/esign-tmy-sources/main/app.json
 | SoundCloud | ✅ 无更新 | 8.85.0_NexaSCb5 |
 | AirCard | ✅ 无更新 | 1.3.2 |
 | PiliPlus | ✅ 无更新 | 2.2.1 |
-| Spotify | 🔄 已更新 | 9.1.88 → 9.2.0 |
+| Spotify | ✅ 无更新 | 9.2.0 |
 
-共 9 个 App：更新 1 · 无更新 8 · 失败 0 · 缺片段 0
+共 9 个 App：更新 0 · 无更新 9 · 失败 0 · 缺片段 0
 
 **[完整更新日志 →](CHANGELOG.md)**
 <!-- changelog:end -->
