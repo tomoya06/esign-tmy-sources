@@ -431,7 +431,10 @@ def process_gh_release(app_cfg, existing):
     src = app_cfg["updateSource"]
     meta = pick_github_release(src)
     version = sanitize_version(meta["version"])
-    if existing and existing.get("version") == str(meta["version"]):
+    # 无更新判定 = 版本号 + 实际下载链接都未变：上游存在"复用 tag/删旧 release 重发同版本"的行为
+    # （如 YouProEXTRA），只比版本号会让指向已删 asset 的死链一直留存
+    if (existing and existing.get("version") == str(meta["version"])
+            and existing.get("downloadURL") == apply_download_mirror(meta["downloadURL"])):
         # 无更新：上游无更新日志时用 App Store 官方说明补齐（补齐后非空不再查询，保持幂等）
         if not existing.get("versionDescription") and not app_cfg.get("versionDescription"):
             notes = itunes_release_notes(existing.get("bundleIdentifier") or app_cfg.get("bundleIdentifier") or "")

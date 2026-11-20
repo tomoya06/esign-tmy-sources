@@ -84,7 +84,7 @@
         "url": "https://github.com/mrdrvt99/YouProEXTRA/releases",
         "assetPattern": "(?i)^YouTubePlus_.*\\.ipa$",
         "versionPattern": "(\\d+(?:[._]\\d+)+)",
-        "rehost": false
+        "rehost": true
       },
       "telegram": null,
       "enabled": true
