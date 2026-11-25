@@ -29,7 +29,7 @@ https://raw.githubusercontent.com/tomoya06/esign-tmy-sources/main/app.json
 ## 最近更新
 
 <!-- changelog:start -->
-### 2026-11-25 17:38 · schedule
+### 2026-11-26 03:48 · schedule
 
 | App | 结果 | 版本 |
 |---|---|---|
