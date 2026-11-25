@@ -71,20 +71,19 @@
       "telegram": null
     },
     {
-      "id": "youtube",
-      "name": "YouTubePlus",
+      "id": "ytkace",
+      "name": "YTKACE",
       "iconURL": "https://raw.githubusercontent.com/tomoya06/esign-tmy-sources/main/assets/icons/youtube.png",
       "tintColor": "FF0000",
-      "developerName": "mrdrvt99 (YTLite)",
-      "localizedDescription": "YouTube 增强版（YouPro/YTLite/YTKillerPlus 构建）：免订阅解锁 Premium、完整 4K HDR、新版下载管理器，基于官方客户端注入 YTLite",
+      "developerName": "itzzace",
+      "localizedDescription": "YouTube 增强版（YTKACE）：开源 YouTube 增强器，内置 SponsorBlock、后台播放、播放器控制与界面自定义，官方仓库每周跟随最新基线更新",
       "versionDescription": "",
-      "bundleIdentifier": "com.google.ios.youtube",
+      "bundleIdentifier": "",
       "updateSource": {
         "type": "github-release",
-        "url": "https://github.com/mrdrvt99/YouProEXTRA/releases",
-        "assetPattern": "(?i)^YouTubePlus_.*\\.ipa$",
-        "versionPattern": "(\\d+(?:[._]\\d+)+)",
-        "rehost": true
+        "url": "https://github.com/itzzace/ytkace/releases",
+        "assetPattern": "(?i)^YTKACE_\\d+\\.\\d+\\.\\d+_YouTube_\\d",
+        "rehost": false
       },
       "telegram": null,
       "enabled": true

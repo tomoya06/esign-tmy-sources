@@ -444,8 +444,8 @@ def process_gh_release(app_cfg, existing):
         log(app_cfg["id"], f"无更新 (v{meta['version']})")
         return existing
 
-    bid = app_cfg.get("bundleIdentifier") or ""
-    if not bid:  # GitHub Release 元数据不含 bundleId，未配置时从 IPA 自动解析
+    bid = app_cfg.get("bundleIdentifier") or (existing or {}).get("bundleIdentifier") or ""
+    if not bid:  # GitHub Release 元数据不含 bundleId，未配置且无旧条目时从 IPA 自动解析
         log(app_cfg["id"], "未配置 bundleIdentifier，从 IPA 自动解析")
         bid = resolve_bundle_id_from_ipa(meta["downloadURL"])
         log(app_cfg["id"], f"解析到 bundleIdentifier: {bid}")

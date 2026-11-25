@@ -12,16 +12,17 @@ https://raw.githubusercontent.com/tomoya06/esign-tmy-sources/main/app.json
 
 ## 收录应用
 
-| App          | 简介                                                |
-| ------------ | --------------------------------------------------- |
-| Spotify      | 增强版（EeveeSpotifyReincarnated）：解锁 Premium    |
-| MaxTube      | YouTube 增强版（免广告、后台播放）                  |
-| RyukGram     | Instagram 增强版                                    |
-| SoundCloud   | 增强版（NexaSC）：解锁 SoundCloud Go+               |
-| PiliPlus     | 第三方 Bilibili 客户端（Flutter），无广告、界面简洁 |
-| RedditDeluxe | 官方 Reddit 客户端注入增强 tweak（RedditFilter）    |
-| AirCard      | Apple Wallet 卡片皮肤与锁屏密码主题                 |
-| PhotosBackup | 照片备份工具                                        |
+| App          | 简介                                                    |
+| ------------ | ------------------------------------------------------- |
+| YTKACE       | YouTube 增强版（开源，SponsorBlock/后台播放，周更跟基线） |
+| RyukGram     | Instagram 增强版                                        |
+| SoundCloud   | 增强版（NexaSC）：解锁 SoundCloud Go+                   |
+| Spotify      | 增强版（EeveeSpotifyReincarnated）：解锁 Premium        |
+| PiliPlus     | 第三方 Bilibili 客户端（Flutter），无广告、界面简洁     |
+| RedditDeluxe | 官方 Reddit 客户端注入增强 tweak（RedditFilter）        |
+| DjuuMusic    | DJ呦呦第三方原生客户端：舞曲/串烧播放                   |
+| AirCard      | Apple Wallet 卡片皮肤与锁屏密码主题                     |
+| PhotosBackup | 照片备份工具                                            |
 
 ## 最近更新
 
