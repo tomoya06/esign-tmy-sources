@@ -29,7 +29,7 @@ https://raw.githubusercontent.com/tomoya06/esign-tmy-sources/main/app.json
 ## 最近更新
 
 <!-- changelog:start -->
-### 2026-11-25 09:53 · workflow_dispatch
+### 2026-11-25 17:38 · schedule
 
 | App | 结果 | 版本 |
 |---|---|---|
@@ -43,9 +43,9 @@ https://raw.githubusercontent.com/tomoya06/esign-tmy-sources/main/app.json
 | PiliPlus | ✅ 无更新 | 2.2.1 |
 | Spotify | ✅ 无更新 | 9.2.0 |
 | Andarium | ✅ 无更新 | 1.1-16 |
-| 看剧AI | 🔄 已更新 | ∅ → 0.1.2.6 |
+| 看剧AI | ✅ 无更新 | 0.1.2.6 |
 
-共 11 个 App：更新 1 · 无更新 10 · 失败 0 · 缺片段 0
+共 11 个 App：更新 0 · 无更新 11 · 失败 0 · 缺片段 0
 
 **[完整更新日志 →](CHANGELOG.md)**
 <!-- changelog:end -->
