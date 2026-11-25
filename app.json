@@ -142,6 +142,20 @@
       "tintColor": "26A69A",
       "size": 1248669708,
       "type": 1
+    },
+    {
+      "name": "看剧AI",
+      "bundleIdentifier": "com.h5.shell.aimovie.kanju",
+      "developerName": "kanju.ai",
+      "version": "0.1.2.6",
+      "versionDate": "2026-10-24T08:37:15.259Z",
+      "versionDescription": "本次更新主要优化了以下内容：\n\n1. 优化综艺选集、换源体验\n2. 新增离线历史记录，封面续播卡片\n3. 优化播放续播体验 优化并修复了一些已知 Bug，提升整体使用体验",
+      "downloadURL": "https://gh-proxy.com/https://github.com/tomoya06/esign-tmy-sources/releases/download/ipa-store/kanju_com.h5.shell.aimovie.kanju_0.1.2.6.ipa",
+      "localizedDescription": "看剧AI（电影天堂）：AI 影视聚合，4K 超清播放、离线缓存、弹幕与换源，iOS 自签版本需签名安装",
+      "iconURL": "https://raw.githubusercontent.com/tomoya06/esign-tmy-sources/main/assets/icons/kanju.png",
+      "tintColor": "1E7A46",
+      "size": 5018006,
+      "type": 1
     }
   ],
   "iconURL": "https://raw.githubusercontent.com/tomoya06/esign-tmy-sources/main/assets/icons/source.png",
