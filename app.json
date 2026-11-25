@@ -46,17 +46,17 @@
       "type": 1
     },
     {
-      "name": "YouTubePlus",
+      "name": "YTKACE",
       "bundleIdentifier": "com.google.ios.youtube",
-      "developerName": "mrdrvt99 (YTLite)",
-      "version": "21.47.6_6.0",
-      "versionDate": "2026-11-22T23:58:23Z",
-      "versionDescription": "### Latest Release, ENJOY!!\r\n\r\n**Cracked by** [@Spy_G](https://t.me/spyg_vault)\r\n\r\n> [!NOTE]\r\n> - 🔑 No subscription required. \r\n> - ✅ New Downloads manager.\r\n> - 📺 Full 4KHDR support.\r\n> - 📝 [6.0 release notes](https://github.com/dayanch96/YTLite/releases/tag/v6.0)\r\n> - 🫧  Liquid Glass and iPhone Duo support.\r\n> - 🆕 `YTLowContrastMode` tweak, enabled by default.\r\n>\r\n> - - -\r\n> #### Extra Tweaks: \r\n> - `YouPip` `YTweaks` `YTABConfig` `YouQuality` `YouChooseQuality` `YouGetCaption` `YTHoldForSpeed` `YTNativeShare`  `YTLowContrastMode` \r\n> -  `Return-YouTube-Dislikes` `DontEatMyContent` `Open in YouTube (Safari Extension)` `VolumeBoostYT`\r\n\r\n> [!WARNING]\r\n> - 21.34.3+ builds require iOS 17+ now.\r\n> - ⚠Fix downloads by setting downloading button placement in youtubeplus settings to Overlay.\r\n> - ⚠Disable Liquid Glass option in Interface settings if tab bar is glitched for you. or reinstall on top of the installed ipa.  Video player bar is still glitched.",
-      "downloadURL": "https://gh-proxy.com/https://github.com/tomoya06/esign-tmy-sources/releases/download/ipa-store/youtube_com.google.ios.youtube_21.47.6_6.0.ipa",
-      "localizedDescription": "YouTube 增强版（YouPro/YTLite/YTKillerPlus 构建）：免订阅解锁 Premium、完整 4K HDR、新版下载管理器，基于官方客户端注入 YTLite",
+      "developerName": "itzzace",
+      "version": "1.1.9",
+      "versionDate": "2026-11-22T23:14:34Z",
+      "versionDescription": "by @itzzace0\n\nWhat's new:\n• Updated to YouTube 21.47.6\n• Action bar editor: reorder buttons and move ⋯ items into the bar\n• Added Remove AI Summaries\n• Added Avoid Notch Cutoff\n• Added an option to disable PiP from the miniplayer\n• Added a fullscreen orientation option, and vertical videos stay in portrait\n• Added the Open in YTKACE Safari extension\n• Remove Products now also hides product rows and cards in feeds, search and the iPad sidebar\n• Backups moved to their own page with last backup and size details\n• Swipe to Seek shows the preview frame and a bigger scrubber\n\nFixed:\n• Launch hang and crash with Remove Filter Chips on the new Home tabs layout\n• Products panel opening on its own\n• PiP falling back for free accounts outside the US\n• Dislike count on iPhone when Dislike is in the ⋯ menu\n• Hold speed pill in right-to-left languages and at 2x\n• Blank search with Shorts hidden\n• Messages button showing on some tabs\n• HLS playback fix not fully applying on newer YouTube versions\n\nYouTube 21.47.6 requires iOS 17, so there are two IPAs:\n• `YTKACE_1.1.9_YouTube_21.47.6.ipa` for iOS 17 and newer\n• `YTKACE_1.1.9_YouTube_iOS16_21.33.6.ipa` for iOS 16",
+      "downloadURL": "https://gh-proxy.com/https://github.com/itzzace/ytkace/releases/download/v1.1.9/YTKACE_1.1.9_YouTube_21.47.6.ipa",
+      "localizedDescription": "YouTube 增强版（YTKACE）：开源 YouTube 增强器，内置 SponsorBlock、后台播放、播放器控制与界面自定义，官方仓库每周跟随最新基线更新",
       "iconURL": "https://raw.githubusercontent.com/tomoya06/esign-tmy-sources/main/assets/icons/youtube.png",
       "tintColor": "FF0000",
-      "size": 154815652,
+      "size": 143414110,
       "type": 1
     },
     {
