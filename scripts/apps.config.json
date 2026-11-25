@@ -196,6 +196,23 @@
       },
       "telegram": null,
       "enabled": true
+    },
+    {
+      "id": "kanju",
+      "name": "看剧AI",
+      "iconURL": "https://raw.githubusercontent.com/tomoya06/esign-tmy-sources/main/assets/icons/kanju.png",
+      "tintColor": "1E7A46",
+      "developerName": "kanju.ai",
+      "localizedDescription": "看剧AI（电影天堂）：AI 影视聚合，4K 超清播放、离线缓存、弹幕与换源，iOS 自签版本需签名安装",
+      "versionDescription": "",
+      "bundleIdentifier": "",
+      "updateSource": {
+        "type": "app-downloads",
+        "url": "https://www.kanju.ai/v1/app-downloads",
+        "rehost": true
+      },
+      "telegram": null,
+      "enabled": true
     }
   ],
   "downloadMirror": "https://gh-proxy.com/"

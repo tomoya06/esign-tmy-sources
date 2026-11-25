@@ -463,6 +463,60 @@ def process_gh_release(app_cfg, existing):
     return build_entry(app_cfg, bid, meta, url, size)
 
 
+def pick_app_downloads(src):
+    """解析官方 app-downloads 分发 JSON（site.app_downloads 协议，如 kanju.ai）。
+
+    items 里 platform=ios 且 download_url 为 .ipa 的条目中取 updated_at 最新
+    （并列看 priority）的一个；版本号由 ops 维护（如 v0.1.2.6），缺失时兜底 1.0。
+    """
+    data = fetch_json(src["url"])
+    items = []
+    for i in data.get("items", []):
+        url = str(i.get("download_url") or "")
+        if i.get("platform") == "ios" and url.lower().split("?")[0].endswith(".ipa"):
+            items.append(i)
+    if not items:
+        raise ValueError("app-downloads 中无 ios ipa 条目")
+    items.sort(key=lambda i: (_parse_alt_date(i.get("updated_at")), i.get("priority") or 0), reverse=True)
+    it = items[0]
+    notes = str(it.get("body") or it.get("summary") or "").strip()
+    return {
+        "version": sanitize_version(str(it.get("version") or "").lstrip("v")) or "1.0",
+        "versionDate": it.get("updated_at") or datetime.now(timezone.utc).isoformat(),
+        "downloadURL": it["download_url"],
+        "size": None,
+        "versionDescription": notes or None,
+    }
+
+
+def process_app_downloads(app_cfg, existing):
+    src = app_cfg["updateSource"]
+    meta = pick_app_downloads(src)
+    # 无更新判定 = 版本号 + 实际下载链接都未变：官方运维可能换包不升版本号
+    # （CDN 路径随上传变化，每次换包 URL 必变，URL 对比能捕捉"同版本换包"）
+    if (existing and existing.get("version") == str(meta["version"])
+            and existing.get("downloadURL") == apply_download_mirror(meta["downloadURL"])):
+        log(app_cfg["id"], f"无更新 (v{meta['version']})")
+        return existing
+
+    bid = app_cfg.get("bundleIdentifier") or (existing or {}).get("bundleIdentifier") or ""
+    if not bid:  # 分发 JSON 不含 bundleId，未配置且无旧条目时从 IPA 自动解析
+        log(app_cfg["id"], "未配置 bundleIdentifier，从 IPA 自动解析")
+        bid = resolve_bundle_id_from_ipa(meta["downloadURL"])
+        log(app_cfg["id"], f"解析到 bundleIdentifier: {bid}")
+
+    if not src.get("rehost"):  # 上游分发直链稳定时直接引用
+        log(app_cfg["id"], f"使用官方直链 (v{meta['version']})")
+        return build_entry(app_cfg, bid, meta, meta["downloadURL"], meta.get("size"))
+
+    version = sanitize_version(meta["version"])
+    url, size, err = rehost_to_storage(app_cfg["id"], bid, version, meta["downloadURL"])
+    if err:
+        raise ValueError(f"rehost=true 但转存失败: {err}")
+    log(app_cfg["id"], f"已转存 (v{meta['version']}, {size} bytes)")
+    return build_entry(app_cfg, bid, meta, url, size)
+
+
 def process_tg_app(app_cfg, existing):
     tg_cfg = app_cfg["telegram"]
     bid = app_cfg.get("bundleIdentifier")
@@ -563,6 +617,8 @@ def process_one(app_cfg, existing, existing_by_bid):
             stype = str((app_cfg["updateSource"] or {}).get("type") or "esign").lower()
             if stype in ("github-release", "githubrelease"):
                 entry = process_gh_release(app_cfg, existing)
+            elif stype == "app-downloads":
+                entry = process_app_downloads(app_cfg, existing)
             else:
                 entry = process_json_app(app_cfg, existing_by_bid)
         elif app_cfg.get("telegram"):

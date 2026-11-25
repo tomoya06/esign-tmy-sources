@@ -14,6 +14,7 @@ https://raw.githubusercontent.com/tomoya06/esign-tmy-sources/main/app.json
 
 | App          | 简介                                                    |
 | ------------ | ------------------------------------------------------- |
+| 看剧AI        | AI 影视聚合（电影天堂，4K/离线缓存，iOS 自签版）        |
 | Andarium     | iOS 上的安卓虚拟机（Kernarium 内核 + LineageOS，免越狱） |
 | YTKACE       | YouTube 增强版（开源，SponsorBlock/后台播放，周更跟基线） |
 | RyukGram     | Instagram 增强版                                        |
