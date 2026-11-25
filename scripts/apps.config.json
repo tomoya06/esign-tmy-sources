@@ -177,6 +177,25 @@
       },
       "telegram": null,
       "enabled": true
+    },
+    {
+      "id": "andarium",
+      "name": "Andarium",
+      "iconURL": "https://raw.githubusercontent.com/tomoya06/esign-tmy-sources/main/assets/icons/andarium.png",
+      "tintColor": "26A69A",
+      "developerName": "imxieyi (Kernarium)",
+      "localizedDescription": "iOS 上的安卓虚拟机：基于 Kernarium 用户态 Linux 内核 + LineageOS，在本地运行完整 Android 系统与 APK，支持 3D 图形、视频播放与多点触控，无需越狱",
+      "versionDescription": "",
+      "bundleIdentifier": "",
+      "updateSource": {
+        "type": "github-release",
+        "url": "https://github.com/imxieyi/Kernarium/releases",
+        "assetPattern": "(?i)^Andarium-[\\d.]+-\\d+\\.ipa$",
+        "versionPattern": "^Andarium-([\\d.]+(?:b\\d+)?-\\d+)\\.ipa$",
+        "rehost": false
+      },
+      "telegram": null,
+      "enabled": true
     }
   ],
   "downloadMirror": "https://gh-proxy.com/"

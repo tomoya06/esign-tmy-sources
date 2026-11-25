@@ -14,6 +14,7 @@ https://raw.githubusercontent.com/tomoya06/esign-tmy-sources/main/app.json
 
 | App          | 简介                                                    |
 | ------------ | ------------------------------------------------------- |
+| Andarium     | iOS 上的安卓虚拟机（Kernarium 内核 + LineageOS，免越狱） |
 | YTKACE       | YouTube 增强版（开源，SponsorBlock/后台播放，周更跟基线） |
 | RyukGram     | Instagram 增强版                                        |
 | SoundCloud   | 增强版（NexaSC）：解锁 SoundCloud Go+                   |
