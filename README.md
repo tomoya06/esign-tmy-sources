@@ -29,12 +29,12 @@ https://raw.githubusercontent.com/tomoya06/esign-tmy-sources/main/app.json
 ## 最近更新
 
 <!-- changelog:start -->
-### 2026-11-28 03:23 · schedule
+### 2026-11-28 16:42 · schedule
 
 | App | 结果 | 版本 |
 |---|---|---|
 | DjuuMusic | ✅ 无更新 | 1.0.6 |
-| PhotosBackup | 🔄 已更新 | 0.3.8 → 0.4.1 |
+| PhotosBackup | ✅ 无更新 | 0.4.1 |
 | RedditDeluxe | ✅ 无更新 | 2026.40.0 |
 | YTKACE | ✅ 无更新 | 1.1.9 |
 | RyukGram | ✅ 无更新 | 1.6.0 |
@@ -45,7 +45,7 @@ https://raw.githubusercontent.com/tomoya06/esign-tmy-sources/main/app.json
 | Andarium | ✅ 无更新 | 1.1-16 |
 | 看剧AI | ✅ 无更新 | 0.1.2.6 |
 
-共 11 个 App：更新 1 · 无更新 10 · 失败 0 · 缺片段 0
+共 11 个 App：更新 0 · 无更新 11 · 失败 0 · 缺片段 0
 
 **[完整更新日志 →](CHANGELOG.md)**
 <!-- changelog:end -->
